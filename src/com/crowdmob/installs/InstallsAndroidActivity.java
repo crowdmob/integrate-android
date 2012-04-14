@@ -23,12 +23,14 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 
 public class InstallsAndroidActivity extends Activity {
 	public static final String CROWDMOB_URL = "https://deals.crowdmob.com/";	//
 	public static final String APP_ID = "0";									//
 	public static final String BID_PRICE_IN_CENTS = "0";						//
 	public static final String PREFS_NAME = "InstallsAndroidPrefsFile";			// Shared preferences name.
+	public static final String TAG = "InstallsAndroid";							//
 
 	
     /** Called when the activity is first created. */
@@ -40,7 +42,11 @@ public class InstallsAndroidActivity extends Activity {
         // Register this Android app installation with CrowdMob.  Only register on the first run of this app.
         SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
         boolean firstRun = settings.getBoolean("firstRun", true);
-        if (firstRun) {
+        if (!firstRun) {
+        	Log.i(TAG, "app has been run before; not registering with CrowdMob");
+        } else {
+        	Log.i(TAG, "app hasn't been run before; registering with CrowdMob");
+        	
         	// Get the Android device's MAC address, and MD5 hash it.
         	WifiManager wifiManager = (WifiManager) this.getSystemService(Context.WIFI_SERVICE);
         	WifiInfo wifiInfo = wifiManager.getConnectionInfo();
