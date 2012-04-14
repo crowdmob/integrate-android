@@ -47,26 +47,45 @@ public class InstallsAndroidActivity extends Activity {
         } else {
         	Log.i(TAG, "app hasn't been run before; registering with CrowdMob");
         	
-        	// Get the Android device's MAC address, and MD5 hash it.
         	Log.d(TAG, "getting wifi manager");
         	WifiManager wifiManager = (WifiManager) this.getSystemService(Context.WIFI_SERVICE);
+        	Log.d(TAG, "got wifi manager: " + wifiManager);
+        	
         	Log.d(TAG, "getting wifi info");
         	WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+        	Log.d(TAG, "got wifi info: " + wifiInfo);
+        	
         	Log.d(TAG, "getting MAC address");
         	String macAddress = wifiInfo.getMacAddress();
-        	Log.i(TAG, "device MAC address: " + macAddress);
-        	Log.d(TAG, "hashing MAC address");
+        	Log.d(TAG, "got MAC address: " + macAddress);
+        	
         	String macAddressHash = "";
 			try {
+				Log.d(TAG, "getting MD5 digest instance");
 				MessageDigest digest = java.security.MessageDigest.getInstance("MD5");
+				Log.d(TAG, "got MD5 digest instance: " + digest);
+				
+				Log.d(TAG, "updating MD5 digest instance");
 	            digest.update(macAddress.getBytes());
+				Log.d(TAG, "updated MD5 digest instance: " + digest);
+				
+	            Log.d(TAG, "creating message digest");
 	            byte messageDigest[] = digest.digest();
+	            Log.d(TAG, "created message digest: " + messageDigest);
+	            
+	            Log.d(TAG, "creating hex string buffer");
 	            StringBuffer hexString = new StringBuffer();
+	            Log.d(TAG, "created hex string buffer: " + hexString);
+	            
+	            Log.d(TAG, "populating hex string buffer");
 	            for (int j = 0; j < messageDigest.length; j++) {
 	                hexString.append(Integer.toHexString(0xFF & messageDigest[j]));
 	            }
+	            Log.d(TAG, "populated hex string buffer: " + hexString);
+	            
+	            Log.d(TAG, "converting hex string buffer to MAC address hash");
 	            macAddressHash = hexString.toString();
-	        	Log.i(TAG, "device MAC address hash: " + macAddressHash);
+	        	Log.d(TAG, "converted hex string buffer to MAC address hash: " + macAddressHash);
 			} catch (NoSuchAlgorithmException e) {
 			}
 
