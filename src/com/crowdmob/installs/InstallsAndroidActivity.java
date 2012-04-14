@@ -48,13 +48,17 @@ public class InstallsAndroidActivity extends Activity {
         	Log.i(TAG, "app hasn't been run before; registering with CrowdMob");
         	
         	// Get the Android device's MAC address, and MD5 hash it.
+        	Log.d(TAG, "getting wifi manager");
         	WifiManager wifiManager = (WifiManager) this.getSystemService(Context.WIFI_SERVICE);
+        	Log.d(TAG, "getting wifi info");
         	WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+        	Log.d(TAG, "getting MAC address");
         	String macAddress = wifiInfo.getMacAddress();
+        	Log.i(TAG, "device MAC address: " + macAddress);
+        	Log.d(TAG, "hashing MAC address");
         	String macAddressHash = "";
-        	MessageDigest digest;
 			try {
-				digest = java.security.MessageDigest.getInstance("MD5");
+				MessageDigest digest = java.security.MessageDigest.getInstance("MD5");
 	            digest.update(macAddress.getBytes());
 	            byte messageDigest[] = digest.digest();
 	            StringBuffer hexString = new StringBuffer();
@@ -62,6 +66,7 @@ public class InstallsAndroidActivity extends Activity {
 	                hexString.append(Integer.toHexString(0xFF & messageDigest[j]));
 	            }
 	            macAddressHash = hexString.toString();
+	        	Log.i(TAG, "device MAC address hash: " + macAddressHash);
 			} catch (NoSuchAlgorithmException e) {
 			}
 
@@ -76,6 +81,8 @@ public class InstallsAndroidActivity extends Activity {
 	        	try {
 					post.setEntity(new UrlEncodedFormEntity(pairs));
 					HttpResponse response = client.execute(post);
+					Integer statusCode = response.getStatusLine().getStatusCode();
+					Log.i(TAG, "issued POST request, status code: " + statusCode);
 				} catch (UnsupportedEncodingException e) {
 				} catch (ClientProtocolException e) {
 				} catch (IOException e) {
