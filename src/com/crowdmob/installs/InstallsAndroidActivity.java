@@ -42,55 +42,8 @@ public class InstallsAndroidActivity extends Activity {
         // Register this Android app installation with CrowdMob.  Only register on the first run of this app.
         if (isFirstRun()) {
         	String macAddress = getMacAddress();
-        	String macAddressHash = "";
-			try {
-				Log.d(TAG, "getting MD5 digest instance");
-				MessageDigest digest = java.security.MessageDigest.getInstance("MD5");
-				Log.d(TAG, "got MD5 digest instance: " + digest);
-				
-				Log.d(TAG, "updating MD5 digest instance");
-	            digest.update(macAddress.getBytes());
-				Log.d(TAG, "updated MD5 digest instance: " + digest);
-				
-	            Log.d(TAG, "creating message digest");
-	            byte messageDigest[] = digest.digest();
-	            Log.d(TAG, "created message digest: " + messageDigest);
-	            
-	            Log.d(TAG, "creating hex string buffer");
-	            StringBuffer hexString = new StringBuffer();
-	            Log.d(TAG, "created hex string buffer: " + hexString);
-	            
-	            Log.d(TAG, "populating hex string buffer");
-	            for (int j = 0; j < messageDigest.length; j++) {
-	                hexString.append(Integer.toHexString(0xFF & messageDigest[j]));
-	            }
-	            Log.d(TAG, "populated hex string buffer: " + hexString);
-	            
-	            Log.d(TAG, "converting hex string buffer to MAC address hash");
-	            macAddressHash = hexString.toString();
-	        	Log.d(TAG, "converted hex string buffer to MAC address hash: " + macAddressHash);
-			} catch (NoSuchAlgorithmException e) {
-			}
-
-			// Issue a POST request with the device's MAC address hash to register the app installation with CrowdMob.
-			if (!TextUtils.isEmpty(macAddressHash)) {
-	        	HttpClient client = new DefaultHttpClient();
-	        	HttpPost post = new HttpPost(CROWDMOB_URL);
-	        	List<NameValuePair> pairs = new ArrayList<NameValuePair>();
-	        	pairs.add(new BasicNameValuePair("app_id", APP_ID));
-	        	pairs.add(new BasicNameValuePair("bid_price_in_cents", BID_PRICE_IN_CENTS));
-	        	pairs.add(new BasicNameValuePair("mac_address_hash", macAddressHash));
-	        	try {
-					post.setEntity(new UrlEncodedFormEntity(pairs));
-					HttpResponse response = client.execute(post);
-					Integer statusCode = response.getStatusLine().getStatusCode();
-					Log.i(TAG, "issued POST request, status code: " + statusCode);
-				} catch (UnsupportedEncodingException e) {
-				} catch (ClientProtocolException e) {
-				} catch (IOException e) {
-				}
-			}
-			
+        	String macAddressHash = hashMacAddress(macAddress);
+			registerWithCrowdMob(macAddressHash);
 			// completedFirstRun();
         }
     }
@@ -109,6 +62,7 @@ public class InstallsAndroidActivity extends Activity {
     	SharedPreferences.Editor editor = settings.edit();
     	editor.putBoolean("firstRun", false);
     	editor.commit();
+    	Log.d(TAG, "saved successful completion of first run");
     }
     
     private String getMacAddress() {
@@ -125,5 +79,59 @@ public class InstallsAndroidActivity extends Activity {
     	Log.d(TAG, "got MAC address: " + macAddress);
 
     	return macAddress;
+    }
+
+    private String hashMacAddress(String macAddress) {
+    	String macAddressHash = "";
+		try {
+			Log.d(TAG, "getting MD5 digest instance");
+			MessageDigest digest = java.security.MessageDigest.getInstance("MD5");
+			Log.d(TAG, "got MD5 digest instance: " + digest);
+			
+			Log.d(TAG, "updating MD5 digest instance");
+            digest.update(macAddress.getBytes());
+			Log.d(TAG, "updated MD5 digest instance: " + digest);
+			
+            Log.d(TAG, "creating message digest");
+            byte messageDigest[] = digest.digest();
+            Log.d(TAG, "created message digest: " + messageDigest);
+            
+            Log.d(TAG, "creating hex string buffer");
+            StringBuffer hexString = new StringBuffer();
+            Log.d(TAG, "created hex string buffer: " + hexString);
+            
+            Log.d(TAG, "populating hex string buffer");
+            for (int j = 0; j < messageDigest.length; j++) {
+                hexString.append(Integer.toHexString(0xFF & messageDigest[j]));
+            }
+            Log.d(TAG, "populated hex string buffer: " + hexString);
+            
+            Log.d(TAG, "converting hex string buffer to MAC address hash");
+            macAddressHash = hexString.toString();
+        	Log.d(TAG, "converted hex string buffer to MAC address hash: " + macAddressHash);
+		} catch (NoSuchAlgorithmException e) {
+		}
+		return macAddressHash;
+    }
+    
+    private void registerWithCrowdMob(String macAddressHash) {
+		// Issue a POST request with the device's MAC address hash to register the app installation with CrowdMob.
+		if (!TextUtils.isEmpty(macAddressHash)) {
+        	HttpClient client = new DefaultHttpClient();
+        	HttpPost post = new HttpPost(CROWDMOB_URL);
+        	List<NameValuePair> pairs = new ArrayList<NameValuePair>();
+        	pairs.add(new BasicNameValuePair("app_id", APP_ID));
+        	pairs.add(new BasicNameValuePair("bid_price_in_cents", BID_PRICE_IN_CENTS));
+        	pairs.add(new BasicNameValuePair("mac_address_hash", macAddressHash));
+        	try {
+				post.setEntity(new UrlEncodedFormEntity(pairs));
+				HttpResponse response = client.execute(post);
+				Integer statusCode = response.getStatusLine().getStatusCode();
+				Log.i(TAG, "issued POST request, status code: " + statusCode);
+			} catch (UnsupportedEncodingException e) {
+			} catch (ClientProtocolException e) {
+			} catch (IOException e) {
+			}
+		}
     }
 }
