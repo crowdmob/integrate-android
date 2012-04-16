@@ -21,17 +21,14 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 
 public class InstallsAndroidActivity extends Activity {
-	private static final String CROWDMOB_URL = "https://deals.crowdmob.com/";	//
-	private static final String APP_ID = "0";									//
-	private static final String BID_PRICE_IN_CENTS = "0";						//
-	private static final String PREFS_NAME = "InstallsAndroidPrefsFile";		// Shared preferences name.
-	private static final String TAG = "InstallsAndroid";						//
-
+	private static final String PREFS_NAME = "InstallsAndroidPrefsFile";
+	private static final String TAG = "InstallsAndroid";
 	
     /** Called when the activity is first created. */
     @Override
@@ -43,7 +40,7 @@ public class InstallsAndroidActivity extends Activity {
         if (isFirstRun()) {
         	String macAddress = getMacAddress();
         	String macAddressHash = hashMacAddress(macAddress);
-			registerWithCrowdMob(macAddressHash);
+        	new RegisterWithCrowdMob().execute(macAddressHash);
 			// completedFirstRun();
         }
     }
@@ -78,6 +75,9 @@ public class InstallsAndroidActivity extends Activity {
     	String macAddress = wifiInfo.getMacAddress();
     	Log.d(TAG, "got MAC address: " + macAddress);
 
+    	if (macAddress == null) {
+    		macAddress = "";
+    	}
     	return macAddress;
     }
 
@@ -113,25 +113,32 @@ public class InstallsAndroidActivity extends Activity {
 		}
 		return macAddressHash;
     }
-    
-    private void registerWithCrowdMob(String macAddressHash) {
+}
+
+class RegisterWithCrowdMob extends AsyncTask<String, Void, Void> {
+	private static final String CROWDMOB_URL = "https://deals.crowdmob.com/";
+	private static final String APP_ID = "0";
+	private static final String BID_PRICE_IN_CENTS = "0";
+	private static final String TAG = "InstallsAndroid";
+	
+	@Override
+	protected Void doInBackground(String... macAddressHash) {
 		// Issue a POST request with the device's MAC address hash to register the app installation with CrowdMob.
-		if (!TextUtils.isEmpty(macAddressHash)) {
-        	HttpClient client = new DefaultHttpClient();
-        	HttpPost post = new HttpPost(CROWDMOB_URL);
-        	List<NameValuePair> pairs = new ArrayList<NameValuePair>();
-        	pairs.add(new BasicNameValuePair("app_id", APP_ID));
-        	pairs.add(new BasicNameValuePair("bid_price_in_cents", BID_PRICE_IN_CENTS));
-        	pairs.add(new BasicNameValuePair("mac_address_hash", macAddressHash));
-        	try {
-				post.setEntity(new UrlEncodedFormEntity(pairs));
-				HttpResponse response = client.execute(post);
-				Integer statusCode = response.getStatusLine().getStatusCode();
-				Log.i(TAG, "issued POST request, status code: " + statusCode);
-			} catch (UnsupportedEncodingException e) {
-			} catch (ClientProtocolException e) {
-			} catch (IOException e) {
-			}
+    	HttpClient client = new DefaultHttpClient();
+    	HttpPost post = new HttpPost(CROWDMOB_URL);
+    	List<NameValuePair> pairs = new ArrayList<NameValuePair>();
+    	pairs.add(new BasicNameValuePair("app_id", APP_ID));
+    	pairs.add(new BasicNameValuePair("bid_price_in_cents", BID_PRICE_IN_CENTS));
+    	pairs.add(new BasicNameValuePair("mac_address_hash", macAddressHash[0]));
+    	try {
+			post.setEntity(new UrlEncodedFormEntity(pairs));
+			HttpResponse response = client.execute(post);
+			Integer statusCode = response.getStatusLine().getStatusCode();
+			Log.i(TAG, "issued POST request, status code: " + statusCode);
+		} catch (UnsupportedEncodingException e) {
+		} catch (ClientProtocolException e) {
+		} catch (IOException e) {
 		}
-    }
+    	return null;
+	}	
 }
