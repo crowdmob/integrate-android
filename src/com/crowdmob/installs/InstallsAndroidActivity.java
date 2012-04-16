@@ -99,11 +99,7 @@ public class InstallsAndroidActivity extends Activity {
     	Log.d(TAG, "has app been run before?");
         SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
         boolean firstRun = settings.getBoolean("firstRun", true);
-        if (firstRun) {
-        	Log.d(TAG, "app hasn't been run before");
-        } else {
-        	Log.d(TAG, "app has been run before");
-        }
+        Log.d(TAG, firstRun ? "app hasn't been run before" : "app has been run before");
         return firstRun;
     }
     
