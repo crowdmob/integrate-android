@@ -23,7 +23,6 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.util.Log;
 
 public class InstallsAndroidActivity extends Activity {
@@ -84,16 +83,12 @@ public class InstallsAndroidActivity extends Activity {
     private String hashMacAddress(String macAddress) {
     	String macAddressHash = "";
 		try {
-			Log.d(TAG, "getting MD5 digest instance");
-			MessageDigest digest = java.security.MessageDigest.getInstance("MD5");
-			Log.d(TAG, "got MD5 digest instance: " + digest);
-			
-			Log.d(TAG, "updating MD5 digest instance");
-            digest.update(macAddress.getBytes());
-			Log.d(TAG, "updated MD5 digest instance: " + digest);
+			Log.d(TAG, "getting digest instance");
+			MessageDigest digest = java.security.MessageDigest.getInstance("SHA-256");
+			Log.d(TAG, "got digest instance: " + digest);
 			
             Log.d(TAG, "creating message digest");
-            byte messageDigest[] = digest.digest();
+            byte messageDigest[] = digest.digest(macAddress.getBytes());
             Log.d(TAG, "created message digest: " + messageDigest);
             
             Log.d(TAG, "creating hex string buffer");
@@ -115,14 +110,14 @@ public class InstallsAndroidActivity extends Activity {
     }
 }
 
-class RegisterWithCrowdMob extends AsyncTask<String, Void, Void> {
+class RegisterWithCrowdMob extends AsyncTask<String, Void, Integer> {
 	private static final String CROWDMOB_URL = "https://deals.crowdmob.com/";
 	private static final String APP_ID = "0";
 	private static final String BID_PRICE_IN_CENTS = "0";
 	private static final String TAG = "InstallsAndroid";
 	
 	@Override
-	protected Void doInBackground(String... macAddressHash) {
+	protected Integer doInBackground(String... macAddressHash) {
 		// Issue a POST request with the device's MAC address hash to register the app installation with CrowdMob.
 		Log.d(TAG, "registering app installation with CrowdMob");
     	HttpClient client = new DefaultHttpClient();
@@ -131,10 +126,11 @@ class RegisterWithCrowdMob extends AsyncTask<String, Void, Void> {
     	pairs.add(new BasicNameValuePair("app_id", APP_ID));
     	pairs.add(new BasicNameValuePair("bid_price_in_cents", BID_PRICE_IN_CENTS));
     	pairs.add(new BasicNameValuePair("mac_address_hash", macAddressHash[0]));
+    	Integer statusCode = null;
     	try {
 			post.setEntity(new UrlEncodedFormEntity(pairs));
 			HttpResponse response = client.execute(post);
-			Integer statusCode = response.getStatusLine().getStatusCode();
+			statusCode = response.getStatusLine().getStatusCode();
 			Log.i(TAG, "issued POST request, status code: " + statusCode);
 		} catch (UnsupportedEncodingException e) {
 			Log.e(TAG, "caught UnsupportedEncodingException");
@@ -143,7 +139,9 @@ class RegisterWithCrowdMob extends AsyncTask<String, Void, Void> {
 		} catch (IOException e) {
 			Log.e(TAG, "caught IOException");
 		}
-    	Log.d(TAG, "registered app installation with CrowdMob");
-    	return null;
+    	if (statusCode != null) {
+    		Log.d(TAG, "registered app installation with CrowdMob");
+    	}
+    	return statusCode;
 	}	
 }
