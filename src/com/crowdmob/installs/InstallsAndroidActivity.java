@@ -26,11 +26,11 @@ import android.text.TextUtils;
 import android.util.Log;
 
 public class InstallsAndroidActivity extends Activity {
-	public static final String CROWDMOB_URL = "https://deals.crowdmob.com/";	//
-	public static final String APP_ID = "0";									//
-	public static final String BID_PRICE_IN_CENTS = "0";						//
-	public static final String PREFS_NAME = "InstallsAndroidPrefsFile";			// Shared preferences name.
-	public static final String TAG = "InstallsAndroid";							//
+	private static final String CROWDMOB_URL = "https://deals.crowdmob.com/";	//
+	private static final String APP_ID = "0";									//
+	private static final String BID_PRICE_IN_CENTS = "0";						//
+	private static final String PREFS_NAME = "InstallsAndroidPrefsFile";		// Shared preferences name.
+	private static final String TAG = "InstallsAndroid";						//
 
 	
     /** Called when the activity is first created. */
