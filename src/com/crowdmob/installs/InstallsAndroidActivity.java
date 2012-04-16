@@ -41,18 +41,7 @@ public class InstallsAndroidActivity extends Activity {
         
         // Register this Android app installation with CrowdMob.  Only register on the first run of this app.
         if (isFirstRun()) {
-        	Log.d(TAG, "getting wifi manager");
-        	WifiManager wifiManager = (WifiManager) this.getSystemService(Context.WIFI_SERVICE);
-        	Log.d(TAG, "got wifi manager: " + wifiManager);
-        	
-        	Log.d(TAG, "getting wifi info");
-        	WifiInfo wifiInfo = wifiManager.getConnectionInfo();
-        	Log.d(TAG, "got wifi info: " + wifiInfo);
-        	
-        	Log.d(TAG, "getting MAC address");
-        	String macAddress = wifiInfo.getMacAddress();
-        	Log.d(TAG, "got MAC address: " + macAddress);
-        	
+        	String macAddress = getMacAddress();
         	String macAddressHash = "";
 			try {
 				Log.d(TAG, "getting MD5 digest instance");
@@ -124,5 +113,21 @@ public class InstallsAndroidActivity extends Activity {
     	SharedPreferences.Editor editor = settings.edit();
     	editor.putBoolean("firstRun", false);
     	editor.commit();
+    }
+    
+    private String getMacAddress() {
+    	Log.d(TAG, "getting wifi manager");
+    	WifiManager wifiManager = (WifiManager) this.getSystemService(Context.WIFI_SERVICE);
+    	Log.d(TAG, "got wifi manager: " + wifiManager);
+    	
+    	Log.d(TAG, "getting wifi info");
+    	WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+    	Log.d(TAG, "got wifi info: " + wifiInfo);
+    	
+    	Log.d(TAG, "getting MAC address");
+    	String macAddress = wifiInfo.getMacAddress();
+    	Log.d(TAG, "got MAC address: " + macAddress);
+
+    	return macAddress;
     }
 }
