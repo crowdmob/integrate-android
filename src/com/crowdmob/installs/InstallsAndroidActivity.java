@@ -40,13 +40,7 @@ public class InstallsAndroidActivity extends Activity {
         setContentView(R.layout.main);
         
         // Register this Android app installation with CrowdMob.  Only register on the first run of this app.
-        SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
-        boolean firstRun = settings.getBoolean("firstRun", true);
-        if (!firstRun) {
-        	Log.i(TAG, "app has been run before; not registering with CrowdMob");
-        } else {
-        	Log.i(TAG, "app hasn't been run before; registering with CrowdMob");
-        	
+        if (isFirstRun()) {
         	Log.d(TAG, "getting wifi manager");
         	WifiManager wifiManager = (WifiManager) this.getSystemService(Context.WIFI_SERVICE);
         	Log.d(TAG, "got wifi manager: " + wifiManager);
@@ -112,5 +106,17 @@ public class InstallsAndroidActivity extends Activity {
         	// editor.putBoolean("firstRun", false);
         	// editor.commit();
         }
+    }
+    
+    private boolean isFirstRun() {
+    	Log.d(TAG, "has app been run before?");
+        SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+        boolean firstRun = settings.getBoolean("firstRun", true);
+        if (firstRun) {
+        	Log.d(TAG, "app hasn't been run before");
+        } else {
+        	Log.d(TAG, "app has been run before");
+        }
+        return firstRun;
     }
 }
