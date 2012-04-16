@@ -102,9 +102,7 @@ public class InstallsAndroidActivity extends Activity {
 				}
 			}
 			
-        	// SharedPreferences.Editor editor = settings.edit();
-        	// editor.putBoolean("firstRun", false);
-        	// editor.commit();
+			// completedFirstRun();
         }
     }
     
@@ -118,5 +116,13 @@ public class InstallsAndroidActivity extends Activity {
         	Log.d(TAG, "app has been run before");
         }
         return firstRun;
+    }
+    
+    private void completedFirstRun() {
+    	Log.d(TAG, "successfully completed first run");
+        SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+    	SharedPreferences.Editor editor = settings.edit();
+    	editor.putBoolean("firstRun", false);
+    	editor.commit();
     }
 }
