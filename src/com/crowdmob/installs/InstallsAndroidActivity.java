@@ -124,6 +124,7 @@ class RegisterWithCrowdMob extends AsyncTask<String, Void, Void> {
 	@Override
 	protected Void doInBackground(String... macAddressHash) {
 		// Issue a POST request with the device's MAC address hash to register the app installation with CrowdMob.
+		Log.d(TAG, "registering app installation with CrowdMob");
     	HttpClient client = new DefaultHttpClient();
     	HttpPost post = new HttpPost(CROWDMOB_URL);
     	List<NameValuePair> pairs = new ArrayList<NameValuePair>();
@@ -136,9 +137,13 @@ class RegisterWithCrowdMob extends AsyncTask<String, Void, Void> {
 			Integer statusCode = response.getStatusLine().getStatusCode();
 			Log.i(TAG, "issued POST request, status code: " + statusCode);
 		} catch (UnsupportedEncodingException e) {
+			Log.e(TAG, "caught UnsupportedEncodingException");
 		} catch (ClientProtocolException e) {
+			Log.e(TAG, "caught ClientProtocolException");
 		} catch (IOException e) {
+			Log.e(TAG, "caught IOException");
 		}
+    	Log.d(TAG, "registered app installation with CrowdMob");
     	return null;
 	}	
 }
