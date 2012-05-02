@@ -42,7 +42,7 @@ public class RegisterWithCrowdMob {
         	String macAddress = getMacAddress(context);
         	String macAddressHash = hashMacAddress(macAddress);
         	new AsyncRegisterWithCrowdMob().execute(appId, bidPriceInCents, macAddressHash);
-			// completedFirstRun(context);
+			completedFirstRun(context);
         }
 	}
 
