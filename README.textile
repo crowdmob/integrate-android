@@ -8,3 +8,8 @@ h2. Integration Instructions
 # Download the file @RegisterWithCrowdMob.java@.  (https://raw.github.com/crowdmob/installs-android/master/src/com/crowdmob/installs/RegisterWithCrowdMob.java)
 # Copy the file @RegisterWithCrowdMob.java@ into the same directory containing your main Android app activity.  (Usually something like: @YourApp/src/com/yourcompany/yourapp@)
 # Edit the file @RegisterWithCrowdMob.java@, and change the package from @com.crowdmob.installs@ to the package containing your main app activity.  (Usually something like: @com.yourcompany.yourapp@)
+# Edit your main activity class.
+## Add a class-level constant for your app ID.  (Like: @private static final String APP_ID = "0";@)
+## Add a class-level constant for your app's bid price in cents.  (Like: @private static final String BID_PRICE_IN_CENTS = "0";@)
+## At the very bottom of your @onCreate@ method, call the code to register your app&rsquo;s install with CrowdMob: @        RegisterWithCrowdMob.trackAppInstallation(this, APP_ID, BID_PRICE_IN_CENTS);@
+## Confirm your work against this example main activity class: https://github.com/crowdmob/installs-android/blob/master/src/com/crowdmob/installs/InstallsAndroidActivity.java
