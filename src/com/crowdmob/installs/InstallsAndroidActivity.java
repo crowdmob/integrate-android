@@ -1,3 +1,12 @@
+/*---------------------------------------------------------------------------*\
+ |  LootAndroidActivity.java                                                 |
+ |                                                                           |
+ |  Copyright (c) 2012, CrowdMob, Inc., original authors.                    |
+ |                                                                           |
+ |      File created/modified by:                                            |
+ |          Raj Shah <raj@crowdmob.com>                                      |
+\*---------------------------------------------------------------------------*/
+
 package com.crowdmob.installs;
 
 import java.io.IOException;
