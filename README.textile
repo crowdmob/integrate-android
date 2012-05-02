@@ -16,4 +16,4 @@ h2. Integration Instructions
 ## Confirm your work against this example main activity class: https://github.com/crowdmob/installs-android/blob/master/src/com/crowdmob/installs/InstallsAndroidActivity.java
 # Congratulations!  You&rsquo;ve integrated your Android app with MobDeals to track installs.
 
-h3. Testing Integration
+h2. Testing Integration

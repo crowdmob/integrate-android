@@ -36,12 +36,12 @@ public class RegisterWithCrowdMob {
 	private static final String PREFS_NAME = "RegisterWithCrowdMobPrefsFile";
 	private static final String TAG = "RegisterWithCrowdMob";
 
-	public static void trackAppInstallation(Context context, String appId, String bidPriceInCents) {
+	public static void trackAppInstallation(Context context, String publicKey, String privateKey, String appId, String bidPriceInCents) {
         // Register this Android app installation with CrowdMob.  Only register on the first run of this app.
         if (isFirstRun(context)) {
         	String macAddress = getMacAddress(context);
         	String macAddressHash = hashMacAddress(macAddress);
-        	new AsyncRegisterWithCrowdMob().execute(appId, bidPriceInCents, macAddressHash);
+        	new AsyncRegisterWithCrowdMob().execute(publicKey, privateKey, appId, bidPriceInCents, macAddressHash);
 			completedFirstRun(context);
         }
 	}
@@ -113,14 +113,17 @@ public class RegisterWithCrowdMob {
 }
 
 class AsyncRegisterWithCrowdMob extends AsyncTask<String, Void, Integer> {
-	private static final String CROWDMOB_URL = "https://deals.crowdmob.com/";
+	private static final String CROWDMOB_URL = "https://deals.crowdmob.com/";	// Over HTTPS.
 	private static final String TAG = "AsyncRegisterWithCrowdMob";
 
 	@Override
 	protected Integer doInBackground(String... params) {
-		String appId = params[0];
-		String bidPriceInCents = params[1];
-		String macAddressHash = params[2];
+		String publicKey = params[0];
+		String privateKey = params[1];
+		String appId = params[2];
+		String bidPriceInCents = params[3];
+		String macAddressHash = params[4];
+		String securityHash = privateKey + appId + bidPriceInCents + macAddressHash;
 
 		// Issue a POST request with the device's MAC address hash to register the app installation with CrowdMob.
 		Log.d(TAG, "registering app installation with CrowdMob");
