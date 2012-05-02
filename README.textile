@@ -3,3 +3,8 @@ h1. MobDeals &mdash; Android App Installs Tracking
 MobDeals (http://deals.crowdmob.com/) offers functionality to track the number
 of unique downloads and installs of your Android app.  You can enable this
 functionality for your own app by following these integration instructions.
+
+h2. Integration Instructions
+# Download the file RegisterWithCrowdMob.java.  (https://raw.github.com/crowdmob/installs-android/master/src/com/crowdmob/installs/RegisterWithCrowdMob.java)
+# Copy the file RegisterWithCrowdMob.java into the same directory containing your main Android app activity.  (Usually something like: YourApp/src/com/yourcompany/yourapp)
+# Edit the file RegisterWithCrowdMob.java, and change the package from "com.crowdmob.installs" to the package containing your main app activity.  (Usually something like: com.yourcompany.yourapp)
