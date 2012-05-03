@@ -11,6 +11,8 @@ package com.crowdmob.installs;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -40,15 +42,15 @@ public class RegisterWithCrowdMob {
 	public static void trackAppInstallation(Context context, String privateKey, String publicKey, String appId, String bidPriceInCents) {
         // Register this Android app installation with CrowdMob.  Only register on the first run of this app.
         if (FirstRun.isFirstRun(context)) {
-        	String macAddressHash = UniqueDeviceId.getMacAddressHash(context);
-        	String securityHash = computeSecurityHash(privateKey, publicKey, appId, bidPriceInCents, macAddressHash);
-        	new AsyncRegisterWithCrowdMob().execute(publicKey, appId, bidPriceInCents, macAddressHash, securityHash);
+        	String uuid = UniqueDeviceId.getUniqueDeviceId(context);
+        	String securityHash = computeSecurityHash(privateKey, publicKey, appId, bidPriceInCents, uuid);
+        	new AsyncRegisterWithCrowdMob().execute(publicKey, appId, bidPriceInCents, uuid, securityHash);
 			// FirstRun.completedFirstRun(context);
         }
 	}
 
-    private static String computeSecurityHash(String privateKey, String publicKey, String appId, String bidPriceInCents, String macAddressHash) {
-    	final String[] components = {publicKey, appId, bidPriceInCents, macAddressHash};
+    private static String computeSecurityHash(String privateKey, String publicKey, String appId, String bidPriceInCents, String uuid) {
+    	final String[] components = {publicKey, appId, bidPriceInCents, uuid};
 		String concatenated = TextUtils.join(DELIMITER, components);
 		String securityHash = Hash.hash("SHA-256", privateKey, concatenated);
 		return securityHash;
@@ -79,30 +81,81 @@ class FirstRun {
 
 class UniqueDeviceId {
 	private static final String TAG = "UniqueDeviceId";
+
+	class Strategies {
+		private Context context;
+
+		public Strategies(Context context) {
+			this.context = context;
+		}
+
+		String androidId() {
+			Log.i(TAG, "trying to get Android ID");
+			return null;
+		}
 	
-    static String getMacAddressHash(Context context) {
-    	Log.d(TAG, "getting wifi manager");
-    	WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
-    	Log.d(TAG, "got wifi manager: " + wifiManager);
-    	
-    	Log.d(TAG, "getting wifi info");
-    	WifiInfo wifiInfo = wifiManager.getConnectionInfo();
-    	Log.d(TAG, "got wifi info: " + wifiInfo);
-    	
-    	Log.d(TAG, "getting MAC address");
-    	String macAddress = wifiInfo.getMacAddress();
-    	Log.d(TAG, "got MAC address: " + macAddress);
+		String serialNumber() {
+			Log.i(TAG, "trying to get serial number");
+			return null;
+		}
+	
+		String macAddressHash() {
+			Log.i(TAG, "trying to get MAC address hash");
 
-    	if (macAddress == null) {
-    		Log.w(TAG, "got MAC address null (wifi disabled?)");
-    		return null;
-    	}
+	    	Log.d(TAG, "getting wifi manager");
+	    	WifiManager wifiManager = (WifiManager) this.context.getSystemService(Context.WIFI_SERVICE);
+	    	Log.d(TAG, "got wifi manager: " + wifiManager);
+	    	
+	    	Log.d(TAG, "getting wifi info");
+	    	WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+	    	Log.d(TAG, "got wifi info: " + wifiInfo);
+	    	
+	    	Log.d(TAG, "getting MAC address");
+	    	String macAddress = wifiInfo.getMacAddress();
+	    	Log.d(TAG, "got MAC address: " + macAddress);
+	
+	    	if (macAddress == null) {
+	    		Log.w(TAG, "couldn't get MAC address (wifi disabled?)");
+	    		return null;
+	    	}
+	
+	       	Log.d(TAG, "hashing MAC address");
+	    	String macAddressHash = Hash.hash("SHA-256", "", macAddress);
+	       	Log.d(TAG, "hashed MAC address: " + macAddressHash);
 
-       	Log.d(TAG, "hashing MAC address");
-    	String macAddressHash = Hash.hash("SHA-256", "", macAddress);
-       	Log.d(TAG, "hashed MAC address: " + macAddressHash);
-    	return macAddressHash;
-    }
+	       	Log.i(TAG, "got MAC address hash");
+	    	return macAddressHash;
+		}
+	
+		String deviceId() {
+			Log.i(TAG, "trying to get device ID");
+			return null;
+		}
+
+		String getTelephonyId() {
+			Log.i(TAG, "trying to get telephony ID");
+			return null;
+		}
+	}
+
+	static String getUniqueDeviceId(Context context) {
+		// For more info, see: http://android-developers.blogspot.com/2011/03/identifying-app-installations.html
+		Strategies strategies = new UniqueDeviceId().new Strategies(context);
+		String uniqueDeviceId = null;
+		for (Method method : strategies.getClass().getDeclaredMethods()) {
+			try {
+				method.invoke(strategies);
+			} catch (InvocationTargetException e) {
+				e.getTargetException().printStackTrace();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			if (uniqueDeviceId != null) {
+				break;
+			}
+		}
+		return uniqueDeviceId;
+	}
 }
 
 class Hash {
@@ -148,10 +201,10 @@ class AsyncRegisterWithCrowdMob extends AsyncTask<String, Void, Integer> {
 		String publicKey = params[0];
 		String appId = params[1];
 		String bidPriceInCents = params[2];
-		String macAddressHash = params[3];
+		String uuid = params[3];
 		String securityHash = params[4];
 
-		// Issue a POST request with the device's MAC address hash to register the app installation with CrowdMob.
+		// Issue a POST request to register the app installation with CrowdMob.
 		Log.d(TAG, "registering app installation with CrowdMob");
     	HttpClient client = new DefaultHttpClient();
     	HttpPost post = new HttpPost(CROWDMOB_URL);
@@ -159,7 +212,7 @@ class AsyncRegisterWithCrowdMob extends AsyncTask<String, Void, Integer> {
     	pairs.add(new BasicNameValuePair("public_key", publicKey));
     	pairs.add(new BasicNameValuePair("app_id", appId));
     	pairs.add(new BasicNameValuePair("bid_price_in_cents", bidPriceInCents));
-    	pairs.add(new BasicNameValuePair("mac_address_hash", macAddressHash));
+    	pairs.add(new BasicNameValuePair("uuid", uuid));
     	pairs.add(new BasicNameValuePair("security_hash", securityHash));
     	Integer statusCode = null;
     	try {
