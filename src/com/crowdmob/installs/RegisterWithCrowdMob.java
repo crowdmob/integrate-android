@@ -30,19 +30,22 @@ import android.content.SharedPreferences;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
+import android.text.TextUtils;
 import android.util.Log;
 
 public class RegisterWithCrowdMob {
 	private static final String PREFS_NAME = "RegisterWithCrowdMobPrefsFile";
+	private static final String DELIMITER = ",";
 	private static final String TAG = "RegisterWithCrowdMob";
 
-	public static void trackAppInstallation(Context context, String publicKey, String privateKey, String appId, String bidPriceInCents) {
+	public static void trackAppInstallation(Context context, String privateKey, String publicKey, String appId, String bidPriceInCents) {
         // Register this Android app installation with CrowdMob.  Only register on the first run of this app.
         if (isFirstRun(context)) {
         	String macAddress = getMacAddress(context);
         	String macAddressHash = hashMacAddress(macAddress);
-        	new AsyncRegisterWithCrowdMob().execute(publicKey, privateKey, appId, bidPriceInCents, macAddressHash);
-			completedFirstRun(context);
+        	String securityHash = computeSecurityHash(privateKey, publicKey, appId, bidPriceInCents, macAddressHash);
+        	new AsyncRegisterWithCrowdMob().execute(publicKey, appId, bidPriceInCents, macAddressHash, securityHash);
+			// completedFirstRun(context);
         }
 	}
 
@@ -84,31 +87,45 @@ public class RegisterWithCrowdMob {
 
     private static String hashMacAddress(String macAddress) {
     	String macAddressHash = "";
-		try {
-			Log.d(TAG, "getting digest instance");
-			MessageDigest digest = java.security.MessageDigest.getInstance("SHA-256");
-			Log.d(TAG, "got digest instance: " + digest);
-
-            Log.d(TAG, "creating message digest");
-            byte messageDigest[] = digest.digest(macAddress.getBytes());
-            Log.d(TAG, "created message digest: " + messageDigest);
-
-            Log.d(TAG, "creating hex string buffer");
-            StringBuffer hexString = new StringBuffer();
-            Log.d(TAG, "created hex string buffer: " + hexString);
-
-            Log.d(TAG, "populating hex string buffer");
-            for (int j = 0; j < messageDigest.length; j++) {
-                hexString.append(Integer.toHexString(0xFF & messageDigest[j]));
-            }
-            Log.d(TAG, "populated hex string buffer: " + hexString);
-
-            Log.d(TAG, "converting hex string buffer to MAC address hash");
-            macAddressHash = hexString.toString();
-        	Log.d(TAG, "converted hex string buffer to MAC address hash: " + macAddressHash);
+    	try {
+			macAddressHash = hash("SHA-256", "", macAddress);
 		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
 		}
-		return macAddressHash;
+    	return macAddressHash;
+    }
+
+    private static String computeSecurityHash(String privateKey, String publicKey, String appId, String bidPriceInCents, String macAddressHash) {
+    	final String[] components = {publicKey, appId, bidPriceInCents, macAddressHash};
+		String concatenated = TextUtils.join(DELIMITER, components);
+		String securityHash = "";
+		try {
+			securityHash = hash("SHA-256", privateKey, concatenated);
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		}
+		return securityHash;
+    }
+
+    private static String hash(String algorithm, String salt, String message) throws NoSuchAlgorithmException {
+    	MessageDigest digest = MessageDigest.getInstance(algorithm);
+    	digest.reset();
+    	if (salt.length() > 0) {
+    		digest.update(salt.getBytes());
+    	}
+    	byte[] messageDigest = digest.digest(message.getBytes());
+
+    	// Convert the message digest to hex.  For more info, see: http://stackoverflow.com/a/332101
+    	StringBuffer hexBuffer = new StringBuffer();
+    	for (int j = 0; j < messageDigest.length; j++) {
+    		String hexByte = Integer.toHexString(0xFF & messageDigest[j]);
+    		if (hexByte.length() == 1) {
+    			hexBuffer.append("0");
+    		}
+    		hexBuffer.append(hexByte);
+    	}
+    	String hexString = hexBuffer.toString();
+    	return hexString;
     }
 }
 
@@ -119,20 +136,21 @@ class AsyncRegisterWithCrowdMob extends AsyncTask<String, Void, Integer> {
 	@Override
 	protected Integer doInBackground(String... params) {
 		String publicKey = params[0];
-		String privateKey = params[1];
-		String appId = params[2];
-		String bidPriceInCents = params[3];
-		String macAddressHash = params[4];
-		String securityHash = privateKey + appId + bidPriceInCents + macAddressHash;
+		String appId = params[1];
+		String bidPriceInCents = params[2];
+		String macAddressHash = params[3];
+		String securityHash = params[4];
 
 		// Issue a POST request with the device's MAC address hash to register the app installation with CrowdMob.
 		Log.d(TAG, "registering app installation with CrowdMob");
     	HttpClient client = new DefaultHttpClient();
     	HttpPost post = new HttpPost(CROWDMOB_URL);
     	List<NameValuePair> pairs = new ArrayList<NameValuePair>();
+    	pairs.add(new BasicNameValuePair("public_key", publicKey));
     	pairs.add(new BasicNameValuePair("app_id", appId));
     	pairs.add(new BasicNameValuePair("bid_price_in_cents", bidPriceInCents));
     	pairs.add(new BasicNameValuePair("mac_address_hash", macAddressHash));
+    	pairs.add(new BasicNameValuePair("security_hash", securityHash));
     	Integer statusCode = null;
     	try {
 			post.setEntity(new UrlEncodedFormEntity(pairs));
@@ -147,7 +165,7 @@ class AsyncRegisterWithCrowdMob extends AsyncTask<String, Void, Integer> {
 			Log.e(TAG, "caught IOException (no internet access?)");
 		}
     	if (statusCode != null) {
-    		Log.d(TAG, "registered app installation with CrowdMob");
+    		Log.d(TAG, "registered app installation with CrowdMob, HTTP status code " + statusCode);
     	}
     	return statusCode;
 	}	
