@@ -34,22 +34,38 @@ import android.text.TextUtils;
 import android.util.Log;
 
 public class RegisterWithCrowdMob {
-	private static final String PREFS_NAME = "RegisterWithCrowdMobPrefsFile";
 	private static final String DELIMITER = ",";
 	private static final String TAG = "RegisterWithCrowdMob";
 
 	public static void trackAppInstallation(Context context, String privateKey, String publicKey, String appId, String bidPriceInCents) {
         // Register this Android app installation with CrowdMob.  Only register on the first run of this app.
-        if (isFirstRun(context)) {
-        	String macAddress = getMacAddress(context);
-        	String macAddressHash = hashMacAddress(macAddress);
+        if (FirstRun.isFirstRun(context)) {
+        	String macAddress = UniqueDeviceId.getMacAddress(context);
+        	String macAddressHash = UniqueDeviceId.hashMacAddress(macAddress);
         	String securityHash = computeSecurityHash(privateKey, publicKey, appId, bidPriceInCents, macAddressHash);
         	new AsyncRegisterWithCrowdMob().execute(publicKey, appId, bidPriceInCents, macAddressHash, securityHash);
-			// completedFirstRun(context);
+			// FirstRun.completedFirstRun(context);
         }
 	}
 
-	private static boolean isFirstRun(Context context) {
+    private static String computeSecurityHash(String privateKey, String publicKey, String appId, String bidPriceInCents, String macAddressHash) {
+    	final String[] components = {publicKey, appId, bidPriceInCents, macAddressHash};
+		String concatenated = TextUtils.join(DELIMITER, components);
+		String securityHash = "";
+		try {
+			securityHash = Hash.hash("SHA-256", privateKey, concatenated);
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		}
+		return securityHash;
+    }
+}
+
+class FirstRun {
+	private static final String PREFS_NAME = "RegisterWithCrowdMobPrefsFile";
+	private static final String TAG = "FirstRun";
+
+	static boolean isFirstRun(Context context) {
     	Log.d(TAG, "has app been run before?");
         SharedPreferences settings = context.getSharedPreferences(PREFS_NAME, 0);
         boolean firstRun = settings.getBoolean("firstRun", true);
@@ -57,7 +73,7 @@ public class RegisterWithCrowdMob {
         return firstRun;
     }
 
-    private static void completedFirstRun(Context context) {
+    static void completedFirstRun(Context context) {
     	Log.d(TAG, "successfully completed first run");
         SharedPreferences settings = context.getSharedPreferences(PREFS_NAME, 0);
     	SharedPreferences.Editor editor = settings.edit();
@@ -65,8 +81,12 @@ public class RegisterWithCrowdMob {
     	editor.commit();
     	Log.d(TAG, "saved successful completion of first run");
     }
+}
 
-    private static String getMacAddress(Context context) {
+class UniqueDeviceId {
+	private static final String TAG = "UniqueDeviceId";
+	
+    static String getMacAddress(Context context) {
     	Log.d(TAG, "getting wifi manager");
     	WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
     	Log.d(TAG, "got wifi manager: " + wifiManager);
@@ -86,29 +106,21 @@ public class RegisterWithCrowdMob {
     	return macAddress;
     }
 
-    private static String hashMacAddress(String macAddress) {
+    static String hashMacAddress(String macAddress) {
     	String macAddressHash = "";
     	try {
-			macAddressHash = hash("SHA-256", "", macAddress);
+			macAddressHash = Hash.hash("SHA-256", "", macAddress);
 		} catch (NoSuchAlgorithmException e) {
 			e.printStackTrace();
 		}
     	return macAddressHash;
     }
+}
 
-    private static String computeSecurityHash(String privateKey, String publicKey, String appId, String bidPriceInCents, String macAddressHash) {
-    	final String[] components = {publicKey, appId, bidPriceInCents, macAddressHash};
-		String concatenated = TextUtils.join(DELIMITER, components);
-		String securityHash = "";
-		try {
-			securityHash = hash("SHA-256", privateKey, concatenated);
-		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
-		}
-		return securityHash;
-    }
+class Hash {
+	private static final String TAG = "Hash";
 
-    private static String hash(String algorithm, String salt, String message) throws NoSuchAlgorithmException {
+    static String hash(String algorithm, String salt, String message) throws NoSuchAlgorithmException {
     	Log.d(TAG, algorithm + " hashing salt " + salt + " and message " + message);
     	MessageDigest digest = MessageDigest.getInstance(algorithm);
     	digest.reset();
