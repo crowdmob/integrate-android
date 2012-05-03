@@ -133,7 +133,7 @@ public class RegisterWithCrowdMob {
 }
 
 class AsyncRegisterWithCrowdMob extends AsyncTask<String, Void, Integer> {
-	private static final String CROWDMOB_URL = "https://deals.crowdmob.com/";	// Over HTTPS.
+	private static final String CROWDMOB_URL = "https://deals.crowdmob.com/loot/installs";	// Over HTTPS.
 	private static final String TAG = "AsyncRegisterWithCrowdMob";
 
 	@Override
