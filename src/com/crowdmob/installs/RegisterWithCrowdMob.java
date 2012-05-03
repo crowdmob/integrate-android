@@ -80,6 +80,7 @@ public class RegisterWithCrowdMob {
     	Log.d(TAG, "got MAC address: " + macAddress);
 
     	if (macAddress == null) {
+    		Log.w(TAG, "got MAC address null (wifi disabled?)");
     		macAddress = "";
     	}
     	return macAddress;
@@ -108,6 +109,7 @@ public class RegisterWithCrowdMob {
     }
 
     private static String hash(String algorithm, String salt, String message) throws NoSuchAlgorithmException {
+    	Log.d(TAG, algorithm + " hashing salt " + salt + " and message " + message);
     	MessageDigest digest = MessageDigest.getInstance(algorithm);
     	digest.reset();
     	if (salt.length() > 0) {
@@ -125,6 +127,7 @@ public class RegisterWithCrowdMob {
     		hexBuffer.append(hexByte);
     	}
     	String hexString = hexBuffer.toString();
+    	Log.d(TAG, algorithm + " hashed to hex string " + hexString);
     	return hexString;
     }
 }
