@@ -40,8 +40,7 @@ public class RegisterWithCrowdMob {
 	public static void trackAppInstallation(Context context, String privateKey, String publicKey, String appId, String bidPriceInCents) {
         // Register this Android app installation with CrowdMob.  Only register on the first run of this app.
         if (FirstRun.isFirstRun(context)) {
-        	String macAddress = UniqueDeviceId.getMacAddress(context);
-        	String macAddressHash = UniqueDeviceId.hashMacAddress(macAddress);
+        	String macAddressHash = UniqueDeviceId.getMacAddressHash(context);
         	String securityHash = computeSecurityHash(privateKey, publicKey, appId, bidPriceInCents, macAddressHash);
         	new AsyncRegisterWithCrowdMob().execute(publicKey, appId, bidPriceInCents, macAddressHash, securityHash);
 			// FirstRun.completedFirstRun(context);
@@ -51,12 +50,7 @@ public class RegisterWithCrowdMob {
     private static String computeSecurityHash(String privateKey, String publicKey, String appId, String bidPriceInCents, String macAddressHash) {
     	final String[] components = {publicKey, appId, bidPriceInCents, macAddressHash};
 		String concatenated = TextUtils.join(DELIMITER, components);
-		String securityHash = "";
-		try {
-			securityHash = Hash.hash("SHA-256", privateKey, concatenated);
-		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
-		}
+		String securityHash = Hash.hash("SHA-256", privateKey, concatenated);
 		return securityHash;
     }
 }
@@ -86,7 +80,7 @@ class FirstRun {
 class UniqueDeviceId {
 	private static final String TAG = "UniqueDeviceId";
 	
-    static String getMacAddress(Context context) {
+    static String getMacAddressHash(Context context) {
     	Log.d(TAG, "getting wifi manager");
     	WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
     	Log.d(TAG, "got wifi manager: " + wifiManager);
@@ -101,18 +95,12 @@ class UniqueDeviceId {
 
     	if (macAddress == null) {
     		Log.w(TAG, "got MAC address null (wifi disabled?)");
-    		macAddress = "";
+    		return null;
     	}
-    	return macAddress;
-    }
 
-    static String hashMacAddress(String macAddress) {
-    	String macAddressHash = "";
-    	try {
-			macAddressHash = Hash.hash("SHA-256", "", macAddress);
-		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
-		}
+       	Log.d(TAG, "hashing MAC address");
+    	String macAddressHash = Hash.hash("SHA-256", "", macAddress);
+       	Log.d(TAG, "hashed MAC address: " + macAddressHash);
     	return macAddressHash;
     }
 }
@@ -120,9 +108,16 @@ class UniqueDeviceId {
 class Hash {
 	private static final String TAG = "Hash";
 
-    static String hash(String algorithm, String salt, String message) throws NoSuchAlgorithmException {
+    static String hash(String algorithm, String salt, String message) {
     	Log.d(TAG, algorithm + " hashing salt " + salt + " and message " + message);
-    	MessageDigest digest = MessageDigest.getInstance(algorithm);
+    	MessageDigest digest = null;
+    	try {
+    		digest = MessageDigest.getInstance(algorithm);
+    	} catch (NoSuchAlgorithmException e) {
+    		Log.w(TAG, "no such algorithm: " + algorithm);
+    		e.printStackTrace();
+    		return null;
+    	}
     	digest.reset();
     	if (salt.length() > 0) {
     		digest.update(salt.getBytes());
