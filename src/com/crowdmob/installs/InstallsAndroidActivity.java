@@ -13,7 +13,7 @@ import android.app.Activity;
 import android.os.Bundle;
 
 public class InstallsAndroidActivity extends Activity {
-	private static final String PRIVATE_KEY = "SECRET SUPER SPY";
+	private static final String PRIVATE_KEY = "PRIVATE KEY";
 	private static final String PUBLIC_KEY = "PUBLIC KEY";
 	private static final String BID_PRICE_IN_CENTS = "0";
 
