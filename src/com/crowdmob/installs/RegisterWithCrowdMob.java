@@ -32,6 +32,10 @@ import android.content.SharedPreferences;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
+import android.os.Build;
+import android.provider.Settings;
+import android.provider.Settings.Secure;
+import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -85,18 +89,40 @@ class UniqueDeviceId {
 	class Strategies {
 		private Context context;
 
+		// For more info, see: http://android-developers.blogspot.com/2011/03/identifying-app-installations.html
+
 		public Strategies(Context context) {
 			this.context = context;
 		}
 
 		String aAndroidId() {
 			Log.i(TAG, "trying to get Android ID");
-			return null;
+			Secure secureSettings = new Settings.Secure();
+			String androidId = null;
+			try {
+				androidId = (String) secureSettings.getClass().getField("ANDROID_ID").get(secureSettings);
+			} catch (Exception e) {
+				Log.w(TAG, "couldn't get Android ID (exception thrown, stack trace follows)");
+				e.printStackTrace();
+				return null;
+			}
+			Log.i(TAG, "got Android ID " + androidId);
+			return androidId;
 		}
 
 		String bSerialNumber() {
 			Log.i(TAG, "trying to get serial number");
-			return null;
+			Build build = new android.os.Build();
+			String serialNumber = null;
+			try {
+				serialNumber = (String) build.getClass().getField("SERIAL").get(build);
+			} catch (Exception e) {
+				Log.w(TAG, "couldn't get serial number (exception thrown, stack trace follows)");
+				e.printStackTrace();
+				return null;
+			}
+			Log.i(TAG, "got serial number " + serialNumber);
+			return serialNumber;
 		}
 
 		String cMacAddressHash() {
@@ -123,28 +149,32 @@ class UniqueDeviceId {
 	    	String macAddressHash = Hash.hash("SHA-256", "", macAddress);
 	       	Log.d(TAG, "hashed MAC address: " + macAddressHash);
 
-	       	Log.i(TAG, "got MAC address hash");
+	       	Log.i(TAG, "got MAC address hash " + macAddressHash);
 	    	return macAddressHash;
 		}
 
-		String dDeviceId() {
-			Log.i(TAG, "trying to get device ID");
-			return null;
-		}
-
-		String eTelephonyId() {
+		String dTelephonyDeviceId() {
 			Log.i(TAG, "trying to get telephony ID");
-			return null;
+
+			Log.d(TAG, "getting telephony manager");
+			TelephonyManager telephonyManager = (TelephonyManager) this.context.getSystemService(Context.TELEPHONY_SERVICE);
+			Log.d(TAG, "got telephony manager: " + telephonyManager);
+
+			Log.d(TAG, "getting telephony device ID");
+			String telephonyDeviceId = telephonyManager.getDeviceId();
+			Log.d(TAG, "got telephony device ID: " + telephonyDeviceId);
+
+			Log.i(TAG,  "got telephony ID " + telephonyDeviceId);
+			return telephonyDeviceId;
 		}
 	}
 
 	static String getUniqueDeviceId(Context context) {
-		// For more info, see: http://android-developers.blogspot.com/2011/03/identifying-app-installations.html
 		Strategies strategies = new UniqueDeviceId().new Strategies(context);
 		String uniqueDeviceId = null;
 		for (Method method : strategies.getClass().getDeclaredMethods()) {
 			try {
-				method.invoke(strategies);
+				uniqueDeviceId = (String) method.invoke(strategies);
 			} catch (InvocationTargetException e) {
 				e.getTargetException().printStackTrace();
 			} catch (Exception e) {
