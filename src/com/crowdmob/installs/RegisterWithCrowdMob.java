@@ -21,10 +21,8 @@ import java.util.List;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 
 import android.content.Context;
@@ -44,20 +42,20 @@ public class RegisterWithCrowdMob {
 	private static final String DELIMITER = ",";
 	private static final String TAG = "RegisterWithCrowdMob";
 
-	public static void trackAppInstallation(Context context, String privateKey, String publicKey, String bidPriceInCents) {
+	public static void trackAppInstallation(Context context, String secretKey, String permalink) {
         // Register this Android app installation with CrowdMob.  Only register on the first run of this app.
         if (FirstRun.isFirstRun(context)) {
         	String uuid = UniqueDeviceId.getUniqueDeviceId(context);
-        	String securityHash = computeSecurityHash(privateKey, publicKey, bidPriceInCents, uuid);
-        	new AsyncRegisterWithCrowdMob().execute(publicKey, bidPriceInCents, uuid, securityHash);
+        	String securityHash = computeSecurityHash(secretKey, permalink, uuid);
+        	new AsyncRegisterWithCrowdMob().execute(permalink, securityHash);
 			// FirstRun.completedFirstRun(context);
         }
 	}
 
-    private static String computeSecurityHash(String privateKey, String publicKey, String bidPriceInCents, String uuid) {
-    	final String[] components = {publicKey, bidPriceInCents, uuid};
+    private static String computeSecurityHash(String secretKey, String permalink, String uuid) {
+    	final String[] components = {permalink, uuid};
 		String concatenated = TextUtils.join(DELIMITER, components);
-		String securityHash = Hash.hash("SHA-256", privateKey, concatenated);
+		String securityHash = Hash.hash("SHA-256", secretKey, concatenated);
 		return securityHash;
     }
 }
@@ -224,15 +222,13 @@ class Hash {
 }
 
 class AsyncRegisterWithCrowdMob extends AsyncTask<String, Void, Integer> {
-	private static final String CROWDMOB_URL = "https://deals.crowdmob.com/loot/installs";	// Over HTTPS.
+	private static final String CROWDMOB_URL = "http://deals.mobstaging.com/loot/verify_install.json";	// Over HTTPS.
 	private static final String TAG = "AsyncRegisterWithCrowdMob";
 
 	@Override
 	protected Integer doInBackground(String... params) {
-		String publicKey = params[0];
-		String bidPriceInCents = params[1];
-		String uuid = params[2];
-		String securityHash = params[3];
+		String permalink = params[0];
+		String securityHash = params[1];
 
 		// Issue a POST request to register the app installation with CrowdMob.
 		Log.i(TAG, "registering app installation with CrowdMob");
@@ -240,9 +236,7 @@ class AsyncRegisterWithCrowdMob extends AsyncTask<String, Void, Integer> {
     	AndroidHttpClient client = AndroidHttpClient.newInstance("Android");
     	HttpPost post = new HttpPost(CROWDMOB_URL);
     	List<NameValuePair> pairs = new ArrayList<NameValuePair>();
-    	pairs.add(new BasicNameValuePair("public_key", publicKey));
-    	pairs.add(new BasicNameValuePair("bid_price_in_cents", bidPriceInCents));
-    	pairs.add(new BasicNameValuePair("uuid", uuid));
+    	pairs.add(new BasicNameValuePair("permalink", permalink));
     	pairs.add(new BasicNameValuePair("security_hash", securityHash));
     	try {
     		Log.d(TAG, "creating POST request");
@@ -270,5 +264,5 @@ class AsyncRegisterWithCrowdMob extends AsyncTask<String, Void, Integer> {
     		Log.i(TAG, "registered app installation with CrowdMob, HTTP status code " + statusCode);
     	}
     	return statusCode;
-	}	
+	}
 }
