@@ -39,18 +39,18 @@ public class RegisterWithCrowdMob {
 	private static final String DELIMITER = ",";
 	private static final String TAG = "RegisterWithCrowdMob";
 
-	public static void trackAppInstallation(Context context, String privateKey, String publicKey, String appId, String bidPriceInCents) {
+	public static void trackAppInstallation(Context context, String privateKey, String publicKey, String bidPriceInCents) {
         // Register this Android app installation with CrowdMob.  Only register on the first run of this app.
         if (FirstRun.isFirstRun(context)) {
         	String uuid = UniqueDeviceId.getUniqueDeviceId(context);
-        	String securityHash = computeSecurityHash(privateKey, publicKey, appId, bidPriceInCents, uuid);
-        	new AsyncRegisterWithCrowdMob().execute(publicKey, appId, bidPriceInCents, uuid, securityHash);
+        	String securityHash = computeSecurityHash(privateKey, publicKey, bidPriceInCents, uuid);
+        	new AsyncRegisterWithCrowdMob().execute(publicKey, bidPriceInCents, uuid, securityHash);
 			// FirstRun.completedFirstRun(context);
         }
 	}
 
-    private static String computeSecurityHash(String privateKey, String publicKey, String appId, String bidPriceInCents, String uuid) {
-    	final String[] components = {publicKey, appId, bidPriceInCents, uuid};
+    private static String computeSecurityHash(String privateKey, String publicKey, String bidPriceInCents, String uuid) {
+    	final String[] components = {publicKey, bidPriceInCents, uuid};
 		String concatenated = TextUtils.join(DELIMITER, components);
 		String securityHash = Hash.hash("SHA-256", privateKey, concatenated);
 		return securityHash;
@@ -93,32 +93,32 @@ class UniqueDeviceId {
 			Log.i(TAG, "trying to get Android ID");
 			return null;
 		}
-	
+
 		String bSerialNumber() {
 			Log.i(TAG, "trying to get serial number");
 			return null;
 		}
-	
+
 		String cMacAddressHash() {
 			Log.i(TAG, "trying to get MAC address hash");
 
 	    	Log.d(TAG, "getting wifi manager");
 	    	WifiManager wifiManager = (WifiManager) this.context.getSystemService(Context.WIFI_SERVICE);
 	    	Log.d(TAG, "got wifi manager: " + wifiManager);
-	    	
+
 	    	Log.d(TAG, "getting wifi info");
 	    	WifiInfo wifiInfo = wifiManager.getConnectionInfo();
 	    	Log.d(TAG, "got wifi info: " + wifiInfo);
-	    	
+
 	    	Log.d(TAG, "getting MAC address");
 	    	String macAddress = wifiInfo.getMacAddress();
 	    	Log.d(TAG, "got MAC address: " + macAddress);
-	
+
 	    	if (macAddress == null) {
 	    		Log.w(TAG, "couldn't get MAC address (wifi disabled?)");
 	    		return null;
 	    	}
-	
+
 	       	Log.d(TAG, "hashing MAC address");
 	    	String macAddressHash = Hash.hash("SHA-256", "", macAddress);
 	       	Log.d(TAG, "hashed MAC address: " + macAddressHash);
@@ -126,7 +126,7 @@ class UniqueDeviceId {
 	       	Log.i(TAG, "got MAC address hash");
 	    	return macAddressHash;
 		}
-	
+
 		String dDeviceId() {
 			Log.i(TAG, "trying to get device ID");
 			return null;
@@ -199,10 +199,9 @@ class AsyncRegisterWithCrowdMob extends AsyncTask<String, Void, Integer> {
 	@Override
 	protected Integer doInBackground(String... params) {
 		String publicKey = params[0];
-		String appId = params[1];
-		String bidPriceInCents = params[2];
-		String uuid = params[3];
-		String securityHash = params[4];
+		String bidPriceInCents = params[1];
+		String uuid = params[2];
+		String securityHash = params[3];
 
 		// Issue a POST request to register the app installation with CrowdMob.
 		Log.i(TAG, "registering app installation with CrowdMob");
@@ -210,7 +209,6 @@ class AsyncRegisterWithCrowdMob extends AsyncTask<String, Void, Integer> {
     	HttpPost post = new HttpPost(CROWDMOB_URL);
     	List<NameValuePair> pairs = new ArrayList<NameValuePair>();
     	pairs.add(new BasicNameValuePair("public_key", publicKey));
-    	pairs.add(new BasicNameValuePair("app_id", appId));
     	pairs.add(new BasicNameValuePair("bid_price_in_cents", bidPriceInCents));
     	pairs.add(new BasicNameValuePair("uuid", uuid));
     	pairs.add(new BasicNameValuePair("security_hash", securityHash));

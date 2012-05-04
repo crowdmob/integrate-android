@@ -15,7 +15,6 @@ import android.os.Bundle;
 public class InstallsAndroidActivity extends Activity {
 	private static final String PRIVATE_KEY = "SECRET SUPER SPY";
 	private static final String PUBLIC_KEY = "PUBLIC KEY";
-	private static final String APP_ID = "0";
 	private static final String BID_PRICE_IN_CENTS = "0";
 
 	/** Called when the activity is first created. */
@@ -23,6 +22,6 @@ public class InstallsAndroidActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-        RegisterWithCrowdMob.trackAppInstallation(this, PUBLIC_KEY, PRIVATE_KEY, APP_ID, BID_PRICE_IN_CENTS);
+        RegisterWithCrowdMob.trackAppInstallation(this, PUBLIC_KEY, PRIVATE_KEY, BID_PRICE_IN_CENTS);
     }
 }
