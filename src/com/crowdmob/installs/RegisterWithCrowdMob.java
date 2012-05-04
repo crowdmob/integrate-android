@@ -40,7 +40,7 @@ import android.util.Log;
 
 public class RegisterWithCrowdMob {
 	private static final String DELIMITER = ",";
-	private static final String TAG = "RegisterWithCrowdMob";
+	// private static final String TAG = "RegisterWithCrowdMob";
 
 	public static void trackAppInstallation(Context context, String secretKey, String permalink) {
         // Register this Android app installation with CrowdMob.  Only register on the first run of this app.
@@ -48,7 +48,7 @@ public class RegisterWithCrowdMob {
         	String uuid = UniqueDeviceId.getUniqueDeviceId(context);
         	String securityHash = computeSecurityHash(secretKey, permalink, uuid);
         	new AsyncRegisterWithCrowdMob().execute(permalink, securityHash);
-			// FirstRun.completedFirstRun(context);
+			FirstRun.completedFirstRun(context);
         }
 	}
 
@@ -222,7 +222,7 @@ class Hash {
 }
 
 class AsyncRegisterWithCrowdMob extends AsyncTask<String, Void, Integer> {
-	private static final String CROWDMOB_URL = "http://deals.mobstaging.com/loot/verify_install.json";	// Over HTTPS.
+	private static final String CROWDMOB_URL = "https://deals.crowdmob.com/loot/verify_install.json";	// Over HTTPS.
 	private static final String TAG = "AsyncRegisterWithCrowdMob";
 
 	@Override
