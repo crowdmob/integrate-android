@@ -236,8 +236,8 @@ class AsyncRegisterWithCrowdMob extends AsyncTask<String, Void, Integer> {
     	AndroidHttpClient client = AndroidHttpClient.newInstance("Android");
     	HttpPost post = new HttpPost(CROWDMOB_URL);
     	List<NameValuePair> pairs = new ArrayList<NameValuePair>();
-    	pairs.add(new BasicNameValuePair("permalink", permalink));
-    	pairs.add(new BasicNameValuePair("security_hash", securityHash));
+    	pairs.add(new BasicNameValuePair("verify[permalink]", permalink));
+    	pairs.add(new BasicNameValuePair("verify[security_hash]", securityHash));
     	try {
     		Log.d(TAG, "creating POST request");
 			post.setEntity(new UrlEncodedFormEntity(pairs));
