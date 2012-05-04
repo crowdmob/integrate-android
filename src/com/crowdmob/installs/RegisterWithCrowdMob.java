@@ -29,6 +29,7 @@ import org.apache.http.message.BasicNameValuePair;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.net.http.AndroidHttpClient;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
@@ -235,25 +236,35 @@ class AsyncRegisterWithCrowdMob extends AsyncTask<String, Void, Integer> {
 
 		// Issue a POST request to register the app installation with CrowdMob.
 		Log.i(TAG, "registering app installation with CrowdMob");
-    	HttpClient client = new DefaultHttpClient();
+    	Integer statusCode = null;
+    	AndroidHttpClient client = AndroidHttpClient.newInstance("Android");
     	HttpPost post = new HttpPost(CROWDMOB_URL);
     	List<NameValuePair> pairs = new ArrayList<NameValuePair>();
     	pairs.add(new BasicNameValuePair("public_key", publicKey));
     	pairs.add(new BasicNameValuePair("bid_price_in_cents", bidPriceInCents));
     	pairs.add(new BasicNameValuePair("uuid", uuid));
     	pairs.add(new BasicNameValuePair("security_hash", securityHash));
-    	Integer statusCode = null;
     	try {
+    		Log.d(TAG, "creating POST request");
 			post.setEntity(new UrlEncodedFormEntity(pairs));
+			Log.d(TAG, "created POST request");
+
+			Log.d(TAG, "issuing POST request");
 			HttpResponse response = client.execute(post);
+			Log.d(TAG, "issued POST request");
+
+			Log.d(TAG, "reading status code");
 			statusCode = response.getStatusLine().getStatusCode();
-			Log.i(TAG, "issued POST request, status code: " + statusCode);
+			Log.d(TAG, "read status code: " + statusCode);
 		} catch (UnsupportedEncodingException e) {
 			Log.e(TAG, "caught UnsupportedEncodingException");
+    		e.printStackTrace();
 		} catch (ClientProtocolException e) {
 			Log.e(TAG, "caught ClientProtocolException");
+    		e.printStackTrace();
 		} catch (IOException e) {
 			Log.e(TAG, "caught IOException (no internet access?)");
+    		e.printStackTrace();
 		}
     	if (statusCode != null) {
     		Log.i(TAG, "registered app installation with CrowdMob, HTTP status code " + statusCode);
