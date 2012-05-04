@@ -62,20 +62,20 @@ class FirstRun {
 	private static final String TAG = "FirstRun";
 
 	static boolean isFirstRun(Context context) {
-    	Log.d(TAG, "has app been run before?");
+    	Log.i(TAG, "has app been run before?");
         SharedPreferences settings = context.getSharedPreferences(PREFS_NAME, 0);
         boolean firstRun = settings.getBoolean("firstRun", true);
-        Log.d(TAG, firstRun ? "app hasn't been run before" : "app has been run before");
+        Log.i(TAG, firstRun ? "app hasn't been run before" : "app has been run before");
         return firstRun;
     }
 
     static void completedFirstRun(Context context) {
-    	Log.d(TAG, "successfully completed first run");
+    	Log.i(TAG, "successfully completed first run");
         SharedPreferences settings = context.getSharedPreferences(PREFS_NAME, 0);
     	SharedPreferences.Editor editor = settings.edit();
     	editor.putBoolean("firstRun", false);
     	editor.commit();
-    	Log.d(TAG, "saved successful completion of first run");
+    	Log.i(TAG, "saved successful completion of first run");
     }
 }
 
@@ -89,17 +89,17 @@ class UniqueDeviceId {
 			this.context = context;
 		}
 
-		String androidId() {
+		String aAndroidId() {
 			Log.i(TAG, "trying to get Android ID");
 			return null;
 		}
 	
-		String serialNumber() {
+		String bSerialNumber() {
 			Log.i(TAG, "trying to get serial number");
 			return null;
 		}
 	
-		String macAddressHash() {
+		String cMacAddressHash() {
 			Log.i(TAG, "trying to get MAC address hash");
 
 	    	Log.d(TAG, "getting wifi manager");
@@ -127,12 +127,12 @@ class UniqueDeviceId {
 	    	return macAddressHash;
 		}
 	
-		String deviceId() {
+		String dDeviceId() {
 			Log.i(TAG, "trying to get device ID");
 			return null;
 		}
 
-		String getTelephonyId() {
+		String eTelephonyId() {
 			Log.i(TAG, "trying to get telephony ID");
 			return null;
 		}
@@ -205,7 +205,7 @@ class AsyncRegisterWithCrowdMob extends AsyncTask<String, Void, Integer> {
 		String securityHash = params[4];
 
 		// Issue a POST request to register the app installation with CrowdMob.
-		Log.d(TAG, "registering app installation with CrowdMob");
+		Log.i(TAG, "registering app installation with CrowdMob");
     	HttpClient client = new DefaultHttpClient();
     	HttpPost post = new HttpPost(CROWDMOB_URL);
     	List<NameValuePair> pairs = new ArrayList<NameValuePair>();
@@ -228,7 +228,7 @@ class AsyncRegisterWithCrowdMob extends AsyncTask<String, Void, Integer> {
 			Log.e(TAG, "caught IOException (no internet access?)");
 		}
     	if (statusCode != null) {
-    		Log.d(TAG, "registered app installation with CrowdMob, HTTP status code " + statusCode);
+    		Log.i(TAG, "registered app installation with CrowdMob, HTTP status code " + statusCode);
     	}
     	return statusCode;
 	}	
