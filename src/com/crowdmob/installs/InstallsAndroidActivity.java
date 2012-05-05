@@ -13,8 +13,11 @@ import android.app.Activity;
 import android.os.Bundle;
 
 public class InstallsAndroidActivity extends Activity {
-	private static final String SECRET_KEY = "SECRET KEY";
-	private static final String PERMALINK = "PERMALINK";
+	// private static final String SECRET_KEY = "SECRET KEY";
+	// private static final String PERMALINK = "PERMALINK";
+
+	private static final String SECRET_KEY = "d2ef7da8a45891f2fee33747788903e7";
+	private static final String PERMALINK = "the-impossible-game";
 
 	/** Called when the activity is first created. */
     @Override

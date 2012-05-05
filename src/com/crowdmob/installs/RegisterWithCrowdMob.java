@@ -47,8 +47,8 @@ public class RegisterWithCrowdMob {
         if (FirstRun.isFirstRun(context)) {
         	String uuid = UniqueDeviceId.getUniqueDeviceId(context);
         	String securityHash = computeSecurityHash(secretKey, permalink, uuid);
-        	new AsyncRegisterWithCrowdMob().execute(permalink, securityHash);
-			FirstRun.completedFirstRun(context);
+        	new AsyncRegisterWithCrowdMob().execute(permalink, uuid, securityHash);
+			// FirstRun.completedFirstRun(context);
         }
 	}
 
@@ -222,13 +222,15 @@ class Hash {
 }
 
 class AsyncRegisterWithCrowdMob extends AsyncTask<String, Void, Integer> {
-	private static final String CROWDMOB_URL = "https://deals.crowdmob.com/loot/verify_install.json";	// Over HTTPS.
+	// private static final String CROWDMOB_URL = "https://deals.crowdmob.com/loot/verify_install.json";	// Over HTTPS.
+	private static final String CROWDMOB_URL = "http://deals.mobstaging.com/loot/verify_install.json";
 	private static final String TAG = "AsyncRegisterWithCrowdMob";
 
 	@Override
 	protected Integer doInBackground(String... params) {
 		String permalink = params[0];
-		String securityHash = params[1];
+		String uuid = params[1];
+		String securityHash = params[2];
 
 		// Issue a POST request to register the app installation with CrowdMob.
 		Log.i(TAG, "registering app installation with CrowdMob");
@@ -237,6 +239,7 @@ class AsyncRegisterWithCrowdMob extends AsyncTask<String, Void, Integer> {
     	HttpPost post = new HttpPost(CROWDMOB_URL);
     	List<NameValuePair> pairs = new ArrayList<NameValuePair>();
     	pairs.add(new BasicNameValuePair("verify[permalink]", permalink));
+    	pairs.add(new BasicNameValuePair("verify[uuid]", uuid));
     	pairs.add(new BasicNameValuePair("verify[security_hash]", securityHash));
     	try {
     		Log.d(TAG, "creating POST request");
@@ -259,7 +262,10 @@ class AsyncRegisterWithCrowdMob extends AsyncTask<String, Void, Integer> {
 		} catch (IOException e) {
 			Log.e(TAG, "caught IOException (no internet access?)");
     		e.printStackTrace();
+		} finally {
+			client.close();
 		}
+
     	if (statusCode != null) {
     		Log.i(TAG, "registered app installation with CrowdMob, HTTP status code " + statusCode);
     	}
