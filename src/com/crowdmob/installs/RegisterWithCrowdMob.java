@@ -9,7 +9,10 @@
 
 package com.crowdmob.installs;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -18,6 +21,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
@@ -234,25 +238,26 @@ class AsyncRegisterWithCrowdMob extends AsyncTask<String, Void, Integer> {
 
 		// Issue a POST request to register the app installation with CrowdMob.
 		Log.i(TAG, "registering app installation with CrowdMob");
-    	Integer statusCode = null;
+
+		String content = null;
+		Integer statusCode = null;
     	AndroidHttpClient client = AndroidHttpClient.newInstance("Android");
     	HttpPost post = new HttpPost(CROWDMOB_URL);
+
     	List<NameValuePair> pairs = new ArrayList<NameValuePair>();
     	pairs.add(new BasicNameValuePair("verify[permalink]", permalink));
     	pairs.add(new BasicNameValuePair("verify[uuid]", uuid));
     	pairs.add(new BasicNameValuePair("verify[security_hash]", securityHash));
+
     	try {
-    		Log.d(TAG, "creating POST request");
-			post.setEntity(new UrlEncodedFormEntity(pairs));
-			Log.d(TAG, "created POST request");
-
 			Log.d(TAG, "issuing POST request");
+			post.setEntity(new UrlEncodedFormEntity(pairs));
 			HttpResponse response = client.execute(post);
-			Log.d(TAG, "issued POST request");
-
-			Log.d(TAG, "reading status code");
 			statusCode = response.getStatusLine().getStatusCode();
-			Log.d(TAG, "read status code: " + statusCode);
+			HttpEntity entity = response.getEntity();
+			InputStream stream = entity.getContent();
+			content = streamToString(stream);
+			Log.d(TAG, "issued POST request, got content " + content);
 		} catch (UnsupportedEncodingException e) {
 			Log.e(TAG, "caught UnsupportedEncodingException");
     		e.printStackTrace();
@@ -270,5 +275,19 @@ class AsyncRegisterWithCrowdMob extends AsyncTask<String, Void, Integer> {
     		Log.i(TAG, "registered app installation with CrowdMob, HTTP status code " + statusCode);
     	}
     	return statusCode;
+	}
+
+	private String streamToString(InputStream stream) {
+		BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+		String line;
+		StringBuilder builder = new StringBuilder();
+		try {
+			while ((line = reader.readLine()) != null) {
+			    builder.append(line);
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return builder.toString();
 	}
 }
