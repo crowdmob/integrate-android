@@ -242,6 +242,8 @@ class AsyncRegisterWithCrowdMob extends AsyncTask<String, Void, Integer> {
 		Log.i(TAG, "registering app installation with CrowdMob");
 
 		Integer crowdMobStatusCode = null;
+		Object json = null;
+		String content = null;
 		Integer httpStatusCode = null;
     	AndroidHttpClient client = AndroidHttpClient.newInstance("Android");
     	HttpPost post = new HttpPost(CROWDMOB_URL);
@@ -258,22 +260,7 @@ class AsyncRegisterWithCrowdMob extends AsyncTask<String, Void, Integer> {
 			httpStatusCode = response.getStatusLine().getStatusCode();
 			HttpEntity entity = response.getEntity();
 			InputStream stream = entity.getContent();
-			String content = streamToString(stream);
-			Object json = null;
-			try {
-				json = new JSONObject(content);
-			} catch (JSONException e) {
-				e.printStackTrace();
-			}
-			if (json != null) {
-				try {
-					crowdMobStatusCode = Integer.parseInt(((JSONObject) json).getString("install_status"));
-				} catch (NumberFormatException e) {
-					e.printStackTrace();
-				} catch (JSONException e) {
-					e.printStackTrace();
-				}
-			}
+			content = streamToString(stream);
 			Log.d(TAG, "issued POST request, got content " + content);
 		} catch (UnsupportedEncodingException e) {
 			Log.e(TAG, "caught UnsupportedEncodingException");
@@ -288,11 +275,26 @@ class AsyncRegisterWithCrowdMob extends AsyncTask<String, Void, Integer> {
 			client.close();
 		}
 
-    	if (httpStatusCode != null) {
-    		Log.i(TAG, "registered app installation with CrowdMob, HTTP status code " + httpStatusCode);
-    		Log.d(TAG, "HTTP status code: " + httpStatusCode);
-    		Log.d(TAG, "CrowdMob status code: " + crowdMobStatusCode);
+    	if (content != null) {
+	    	try {
+				json = new JSONObject(content);
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+			if (json != null) {
+				try {
+					crowdMobStatusCode = Integer.parseInt(((JSONObject) json).getString("install_status"));
+				} catch (NumberFormatException e) {
+					e.printStackTrace();
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+			}
     	}
+
+		Log.i(TAG, "registered app installation with CrowdMob, HTTP status code " + httpStatusCode);
+    	Log.d(TAG, "HTTP status code: " + httpStatusCode);
+    	Log.d(TAG, "CrowdMob status code: " + crowdMobStatusCode);
     	return crowdMobStatusCode;
 	}
 
