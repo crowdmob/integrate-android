@@ -28,6 +28,8 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -239,8 +241,8 @@ class AsyncRegisterWithCrowdMob extends AsyncTask<String, Void, Integer> {
 		// Issue a POST request to register the app installation with CrowdMob.
 		Log.i(TAG, "registering app installation with CrowdMob");
 
-		String content = null;
-		Integer statusCode = null;
+		Integer crowdMobStatusCode = null;
+		Integer httpStatusCode = null;
     	AndroidHttpClient client = AndroidHttpClient.newInstance("Android");
     	HttpPost post = new HttpPost(CROWDMOB_URL);
 
@@ -253,10 +255,25 @@ class AsyncRegisterWithCrowdMob extends AsyncTask<String, Void, Integer> {
 			Log.d(TAG, "issuing POST request");
 			post.setEntity(new UrlEncodedFormEntity(pairs));
 			HttpResponse response = client.execute(post);
-			statusCode = response.getStatusLine().getStatusCode();
+			httpStatusCode = response.getStatusLine().getStatusCode();
 			HttpEntity entity = response.getEntity();
 			InputStream stream = entity.getContent();
-			content = streamToString(stream);
+			String content = streamToString(stream);
+			Object json = null;
+			try {
+				json = new JSONObject(content);
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+			if (json != null) {
+				try {
+					crowdMobStatusCode = Integer.parseInt(((JSONObject) json).getString("install_status"));
+				} catch (NumberFormatException e) {
+					e.printStackTrace();
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+			}
 			Log.d(TAG, "issued POST request, got content " + content);
 		} catch (UnsupportedEncodingException e) {
 			Log.e(TAG, "caught UnsupportedEncodingException");
@@ -271,10 +288,12 @@ class AsyncRegisterWithCrowdMob extends AsyncTask<String, Void, Integer> {
 			client.close();
 		}
 
-    	if (statusCode != null) {
-    		Log.i(TAG, "registered app installation with CrowdMob, HTTP status code " + statusCode);
+    	if (httpStatusCode != null) {
+    		Log.i(TAG, "registered app installation with CrowdMob, HTTP status code " + httpStatusCode);
+    		Log.d(TAG, "HTTP status code: " + httpStatusCode);
+    		Log.d(TAG, "CrowdMob status code: " + crowdMobStatusCode);
     	}
-    	return statusCode;
+    	return crowdMobStatusCode;
 	}
 
 	private String streamToString(InputStream stream) {
