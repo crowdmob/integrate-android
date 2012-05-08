@@ -19,3 +19,14 @@ h2. Integration Instructions
 h2. Testing Integration
 
 # Launch your app in your Android emulator, and examine the logs using LogCat.
+# Look for the following three log entries:
+## @registered app installation with CrowdMob, HTTP status code 200@
+## @HTTP status code: 200@
+## @CrowdMob status code: 1004@
+# In particular, the CrowdMob status code should be 1004 or 1005.  This is what the status codes mean:
+## 1001 - App (permalink) doesn't exist within Loot.
+## 1002 - Securty hash could not be verified.
+## 1003 - Device (UUID) has not been registered (so install can't be verified).
+## 1004 - Installation succeeded, verified, and recorded within Loot.
+## 1005 - Installation previously succeeded, verified, and recorded within Loot.
+## 1006 - Installation could not be confirmed.
