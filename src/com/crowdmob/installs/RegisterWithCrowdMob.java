@@ -59,9 +59,9 @@ public class RegisterWithCrowdMob {
 	}
 
     private static String computeSecurityHash(String secretKey, String permalink, String uuid) {
-    	final String[] components = {permalink, uuid};
+    	final String[] components = {secretKey, permalink, uuid};
 		String concatenated = TextUtils.join(DELIMITER, components);
-		String securityHash = Hash.hash("SHA-256", secretKey, concatenated);
+		String securityHash = Hash.hash("SHA-256", "", concatenated);
 		return securityHash;
     }
 }
@@ -234,10 +234,6 @@ class AsyncRegisterWithCrowdMob extends AsyncTask<String, Void, Integer> {
 
 	@Override
 	protected Integer doInBackground(String... params) {
-		String permalink = params[0];
-		String uuid = params[1];
-		String securityHash = params[2];
-
 		// Issue a POST request to register the app installation with CrowdMob.
 		Log.i(TAG, "registering app installation with CrowdMob");
 
@@ -247,11 +243,7 @@ class AsyncRegisterWithCrowdMob extends AsyncTask<String, Void, Integer> {
 		Integer httpStatusCode = null;
     	AndroidHttpClient client = AndroidHttpClient.newInstance("Android");
     	HttpPost post = new HttpPost(CROWDMOB_URL);
-
-    	List<NameValuePair> pairs = new ArrayList<NameValuePair>();
-    	pairs.add(new BasicNameValuePair("verify[permalink]", permalink));
-    	pairs.add(new BasicNameValuePair("verify[uuid]", uuid));
-    	pairs.add(new BasicNameValuePair("verify[security_hash]", securityHash));
+		List<NameValuePair> pairs = populateParams(params);
 
     	try {
 			Log.d(TAG, "issuing POST request");
@@ -296,6 +288,19 @@ class AsyncRegisterWithCrowdMob extends AsyncTask<String, Void, Integer> {
     	Log.d(TAG, "HTTP status code: " + httpStatusCode);
     	Log.d(TAG, "CrowdMob status code: " + crowdMobStatusCode);
     	return crowdMobStatusCode;
+	}
+
+	private List<NameValuePair> populateParams(String... params) {
+		String permalink = params[0];
+		String uuid = params[1];
+		String securityHash = params[2];
+
+		List<NameValuePair> pairs = new ArrayList<NameValuePair>();
+    	pairs.add(new BasicNameValuePair("verify[permalink]", permalink));
+    	pairs.add(new BasicNameValuePair("verify[uuid]", uuid));
+    	pairs.add(new BasicNameValuePair("verify[security_hash]", securityHash));
+
+    	return pairs;
 	}
 
 	private String streamToString(InputStream stream) {
