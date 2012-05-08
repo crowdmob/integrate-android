@@ -237,8 +237,6 @@ class AsyncRegisterWithCrowdMob extends AsyncTask<String, Void, Integer> {
 		// Issue a POST request to register the app installation with CrowdMob.
 		Log.i(TAG, "registering app installation with CrowdMob");
 
-		Integer crowdMobStatusCode = null;
-		Object json = null;
 		String content = null;
 		Integer httpStatusCode = null;
     	AndroidHttpClient client = AndroidHttpClient.newInstance("Android");
@@ -267,23 +265,7 @@ class AsyncRegisterWithCrowdMob extends AsyncTask<String, Void, Integer> {
 			client.close();
 		}
 
-    	if (content != null) {
-	    	try {
-				json = new JSONObject(content);
-			} catch (JSONException e) {
-				e.printStackTrace();
-			}
-			if (json != null) {
-				try {
-					crowdMobStatusCode = Integer.parseInt(((JSONObject) json).getString("install_status"));
-				} catch (NumberFormatException e) {
-					e.printStackTrace();
-				} catch (JSONException e) {
-					e.printStackTrace();
-				}
-			}
-    	}
-
+    	Integer crowdMobStatusCode = parseJson(content);
 		Log.i(TAG, "registered app installation with CrowdMob, HTTP status code " + httpStatusCode);
     	Log.d(TAG, "HTTP status code: " + httpStatusCode);
     	Log.d(TAG, "CrowdMob status code: " + crowdMobStatusCode);
@@ -315,5 +297,28 @@ class AsyncRegisterWithCrowdMob extends AsyncTask<String, Void, Integer> {
 			e.printStackTrace();
 		}
 		return builder.toString();
+	}
+
+	private Integer parseJson(String content) {
+		Integer crowdMobStatusCode = null;
+		Object json = null;
+
+		if (content != null) {
+	    	try {
+				json = new JSONObject(content);
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+			if (json != null) {
+				try {
+					crowdMobStatusCode = Integer.parseInt(((JSONObject) json).getString("install_status"));
+				} catch (NumberFormatException e) {
+					e.printStackTrace();
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+			}
+    	}
+		return crowdMobStatusCode;
 	}
 }
