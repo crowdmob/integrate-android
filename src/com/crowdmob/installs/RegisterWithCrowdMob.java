@@ -45,7 +45,6 @@ import android.text.TextUtils;
 import android.util.Log;
 
 public class RegisterWithCrowdMob {
-	private static final String DELIMITER = ",";
 	// private static final String TAG = "RegisterWithCrowdMob";
 
 	public static void trackAppInstallation(Context context, String secretKey, String permalink) {
@@ -279,7 +278,7 @@ class AsyncRegisterWithCrowdMob extends AsyncTask<String, Void, Integer> {
 		List<NameValuePair> pairs = new ArrayList<NameValuePair>();
     	pairs.add(new BasicNameValuePair("verify[permalink]", permalink));
     	pairs.add(new BasicNameValuePair("verify[uuid]", uuid));
-    	pairs.add(new BasicNameValuePair("verify[security_hash]", securityHash));
+    	pairs.add(new BasicNameValuePair("verify[secret_hash]", securityHash));
 
     	return pairs;
 	}
