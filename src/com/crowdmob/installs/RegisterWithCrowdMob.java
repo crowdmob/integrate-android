@@ -59,9 +59,8 @@ public class RegisterWithCrowdMob {
 	}
 
     private static String computeSecurityHash(String secretKey, String permalink, String uuid) {
-    	final String[] components = {secretKey, permalink, uuid};
-		String concatenated = TextUtils.join(DELIMITER, components);
-		String securityHash = Hash.hash("SHA-256", "", concatenated);
+    	String message = secretKey + permalink + ',' + uuid;
+		String securityHash = Hash.hash("SHA-256", "", message);
 		return securityHash;
     }
 }
