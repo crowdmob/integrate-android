@@ -14,6 +14,12 @@ h2. Integration Instructions
 ## Add a class-level constant for your app's permalink.  (Like: @private static final String PERMALINK = "your-app";@)
 ## At the very bottom of your @onCreate()@ method, call the code to register your app&rsquo;s install with CrowdMob: @RegisterWithCrowdMob.trackAppInstallation(this, SECRET_KEY, PERMALINK);@
 ## Confirm your work against this example main activity class: https://github.com/crowdmob/installs-android/blob/master/src/com/crowdmob/installs/InstallsAndroidActivity.java
+# Edit your @AndroidManifest.xml@ file.
+## At the very bottom, within the @<manifest>@ tag, add the following lines:
+### @<uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+### @<uses-permission android:name="android.permission.INTERNET" />@
+### @<uses-permission android:name="android.permission.READ_PHONE_STATE" />@
+@@ Confirm your work against this example @AndroidManifest.xml@ file: https://github.com/crowdmob/installs-android/blob/master/AndroidManifest.xml
 # Congratulations!  You&rsquo;ve integrated your Android app with MobDeals to track installs.
 
 h2. Testing Integration
