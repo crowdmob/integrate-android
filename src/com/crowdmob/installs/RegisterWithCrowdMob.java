@@ -248,6 +248,10 @@ class AsyncRegisterWithCrowdMob extends AsyncTask<String, Void, Integer> {
 			HttpEntity entity = response.getEntity();
 			InputStream stream = entity.getContent();
 			content = streamToString(stream);
+			try {
+				stream.close();
+			} catch (IOException e) {
+			}
 			Log.d(TAG, "issued POST request, got content " + content);
 		} catch (UnsupportedEncodingException e) {
 			Log.e(TAG, "caught UnsupportedEncodingException");
