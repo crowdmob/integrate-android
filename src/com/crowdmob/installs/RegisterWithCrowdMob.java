@@ -63,6 +63,9 @@ public class RegisterWithCrowdMob {
     }
 }
 
+// This class only contains static methods.  So we don't incur any penalty for
+// instantiating a new object.  It's just a way to organize all of the methods
+// to do with determining if an app has been run before.
 class FirstRun {
 	private static final String PREFS_NAME = "RegisterWithCrowdMobPrefsFile";
 	private static final String TAG = "FirstRun";
@@ -85,13 +88,20 @@ class FirstRun {
     }
 }
 
+// This class only contains static methods.  So we don't incur any penalty for
+// instantiating a new object.  It's just a way to organize all of the methods
+// to do with determining if an app has been run before.
 class UniqueDeviceId {
 	private static final String TAG = "UniqueDeviceId";
 
+	// This class contains methods corresponding to strategies for determining
+	// a unique Android device ID.  We use reflection to iterate through the
+	// methods one by one (in alphabetical order by method name), and we use
+	// the device ID returned by the first successful method call.
+	//
+	// For more info, see: http://android-developers.blogspot.com/2011/03/identifying-app-installations.html
 	class Strategies {
 		private Context context;
-
-		// For more info, see: http://android-developers.blogspot.com/2011/03/identifying-app-installations.html
 
 		public Strategies(Context context) {
 			this.context = context;
@@ -190,6 +200,9 @@ class UniqueDeviceId {
 	}
 }
 
+// This class only contains static methods.  So we don't incur any penalty for
+// instantiating a new object.  It's just a way to organize all of the methods
+// to do with generating cryptographic hashes.
 class Hash {
 	private static final String TAG = "Hash";
 
