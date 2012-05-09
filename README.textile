@@ -16,7 +16,7 @@ h2. Integration Instructions
 ## Confirm your work against this example main activity class: https://github.com/crowdmob/installs-android/blob/master/src/com/crowdmob/installs/InstallsAndroidActivity.java
 # Edit your @AndroidManifest.xml@ file.
 ## At the very bottom, within the @<manifest>@ tag, add the following lines:
-### @<uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+### @<uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />@
 ### @<uses-permission android:name="android.permission.INTERNET" />@
 ### @<uses-permission android:name="android.permission.READ_PHONE_STATE" />@
 @@ Confirm your work against this example @AndroidManifest.xml@ file: https://github.com/crowdmob/installs-android/blob/master/AndroidManifest.xml
