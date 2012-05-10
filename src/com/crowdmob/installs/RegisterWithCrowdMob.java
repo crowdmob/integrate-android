@@ -238,7 +238,7 @@ class Hash {
 }
 
 class AsyncRegisterWithCrowdMob extends AsyncTask<String, Void, Integer> {
-	private static final String CROWDMOB_URL = "https://deals.crowdmob.com/loot/verify_install.json";	// Over HTTPS.
+	private static final String CROWDMOB_URL = "http://deals.crowdmob.com/loot/verify_install.json";
 	// private static final String CROWDMOB_URL = "http://deals.mobstaging.com/loot/verify_install.json";
 	private static final Integer[] successCrowdMobStatusCodes = {1004, 1005};
 	private static final String TAG = "AsyncRegisterWithCrowdMob";
