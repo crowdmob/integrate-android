@@ -9,4 +9,78 @@
         android:layout_height="wrap_content"
         android:text="@string/hello" />
 
+    <ToggleButton
+        android:id="@+id/toggleSandbox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/toggleSandbox"
+        android:textOff="Using production server"
+        android:textOn="Using Staging Server" />
+
+    <EditText
+        android:id="@+id/editApiKey"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" 
+        android:hint="@string/editApiKeyHint" />
+
+    <EditText
+        android:id="@+id/editApiSecret"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" 
+        android:hint="@string/editApiSecretHint" />
+
+    <Button
+        android:id="@+id/buttonOfferwall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/buttonOfferwall" />
+
+    <Button 
+        android:id="@+id/buttonIpOffer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/buttonIpOffer" />
+
+    <Button
+        android:id="@+id/buttonGpsOffer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/buttonGpsOffer" />
+
+    <TextView
+        android:id="@+id/textOfferName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/textOfferDiscount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/textOfferCurrency"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+
+    <TextView
+        android:id="@+id/textOfferLocation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+
+    <TextView
+        android:id="@+id/textOfferExpires"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+
+    <Button
+        android:id="@+id/buttonBuyOffer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/buttonBuyOffer" />
+
 </LinearLayout>

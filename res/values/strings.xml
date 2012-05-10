@@ -3,5 +3,12 @@
 
     <string name="hello">Hello World, InstallsAndroidActivity!</string>
     <string name="app_name">InstallsAndroid</string>
+    <string name="toggleSandbox">Use Staging Server</string>
+    <string name="editApiKeyHint">API Key</string>
+    <string name="editApiSecretHint">API Secret</string>
+    <string name="buttonOfferwall">Offerwall</string>
+    <string name="buttonGpsOffer">GPS Offer</string>
+    <string name="buttonIpOffer">IP Offer</string>
+    <string name="buttonBuyOffer">View</string>
 
 </resources>
