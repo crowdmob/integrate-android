@@ -19,6 +19,7 @@ import java.lang.reflect.Method;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.http.HttpEntity;
@@ -51,8 +52,7 @@ public class RegisterWithCrowdMob {
         if (FirstRun.isFirstRun(context)) {
         	String uuid = UniqueDeviceId.getUniqueDeviceId(context);
         	String securityHash = computeSecurityHash(secretKey, permalink, uuid);
-        	new AsyncRegisterWithCrowdMob().execute(permalink, uuid, securityHash);
-			// FirstRun.completedFirstRun(context);
+        	new AsyncRegisterWithCrowdMob(context).execute(permalink, uuid, securityHash);
         }
 	}
 
@@ -240,7 +240,14 @@ class Hash {
 class AsyncRegisterWithCrowdMob extends AsyncTask<String, Void, Integer> {
 	// private static final String CROWDMOB_URL = "https://deals.crowdmob.com/loot/verify_install.json";	// Over HTTPS.
 	private static final String CROWDMOB_URL = "http://deals.mobstaging.com/loot/verify_install.json";
+	private static final Integer[] successCrowdMobStatusCodes = {1004, 1005};
 	private static final String TAG = "AsyncRegisterWithCrowdMob";
+	private Context context = null;
+
+	public AsyncRegisterWithCrowdMob(Context activityContext) {
+		super();
+		context = activityContext;
+	}
 
 	@Override
 	protected Integer doInBackground(String... params) {
@@ -284,6 +291,18 @@ class AsyncRegisterWithCrowdMob extends AsyncTask<String, Void, Integer> {
     	Log.d(TAG, "HTTP status code: " + httpStatusCode);
     	Log.d(TAG, "CrowdMob status code: " + crowdMobStatusCode);
     	return crowdMobStatusCode;
+	}
+
+	@Override
+	protected void onPostExecute(Integer crowdMobStatusCode) {
+		Log.i(TAG, "handling CrowdMob installation registration status code " + crowdMobStatusCode);
+		if (Arrays.asList(successCrowdMobStatusCodes).contains(crowdMobStatusCode)) {
+			Log.d(TAG, "CrowdMob status code indicates success; registering successful first run");
+			FirstRun.completedFirstRun(context);
+		} else {
+			Log.d(TAG, "CrowdMob status code indicates failure; not registering successful first run");
+		}
+		Log.i(TAG, "handled CrowdMob installation registration status code");
 	}
 
 	private List<NameValuePair> populateParams(String... params) {
