@@ -40,6 +40,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager.LayoutParams;
+import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
@@ -317,7 +318,7 @@ public class InstallsAndroidActivity extends Activity {
 
     	// This gives permission to send the phone's location via the browser
     	webview.setWebChromeClient(new WebChromeClient() {
-    		public void onGeolocationPermissionsShowPrompt(String origin, GeolocationPermissions.Callback callback) {
+    		public void onGeolocationPermissionsShowPrompt(String origin, android.webkit.GeolocationPermissions.Callback callback) {
     			callback.invoke(origin, true, true);
     		}
     	});
