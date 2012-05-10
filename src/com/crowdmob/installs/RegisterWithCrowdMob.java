@@ -238,8 +238,8 @@ class Hash {
 }
 
 class AsyncRegisterWithCrowdMob extends AsyncTask<String, Void, Integer> {
-	// private static final String CROWDMOB_URL = "https://deals.crowdmob.com/loot/verify_install.json";	// Over HTTPS.
-	private static final String CROWDMOB_URL = "http://deals.mobstaging.com/loot/verify_install.json";
+	private static final String CROWDMOB_URL = "https://deals.crowdmob.com/loot/verify_install.json";	// Over HTTPS.
+	// private static final String CROWDMOB_URL = "http://deals.mobstaging.com/loot/verify_install.json";
 	private static final Integer[] successCrowdMobStatusCodes = {1004, 1005};
 	private static final String TAG = "AsyncRegisterWithCrowdMob";
 	private Context context = null;
@@ -280,7 +280,7 @@ class AsyncRegisterWithCrowdMob extends AsyncTask<String, Void, Integer> {
 			Log.e(TAG, "caught ClientProtocolException");
     		e.printStackTrace();
 		} catch (IOException e) {
-			Log.e(TAG, "caught IOException (no internet access?)");
+			Log.e(TAG, "caught IOException (no internet access or SSL error?)");
     		e.printStackTrace();
 		} finally {
 			client.close();
