@@ -271,6 +271,7 @@ class AsyncRegisterWithCrowdMob extends AsyncTask<String, Void, Integer> {
 				stream.close();
 			} catch (IOException e) {
 			}
+			entity.consumeContent();
 			Log.d(TAG, "issued POST request, got content " + content);
 		} catch (UnsupportedEncodingException e) {
 			Log.e(TAG, "caught UnsupportedEncodingException");
@@ -281,9 +282,8 @@ class AsyncRegisterWithCrowdMob extends AsyncTask<String, Void, Integer> {
 		} catch (IOException e) {
 			Log.e(TAG, "caught IOException (no internet access or SSL error?)");
     		e.printStackTrace();
-		} finally {
-			client.close();
 		}
+		client.close();
 
     	Integer crowdMobStatusCode = parseJson(content);
 		Log.i(TAG, "registered app installation with CrowdMob, HTTP status code " + httpStatusCode);
