@@ -123,15 +123,14 @@ class UniqueDeviceId {
 
 		String bSerialNumber() {
 			Log.i(TAG, "trying to get serial number");
-			Build build = new android.os.Build();
 			String serialNumber = null;
 			try {
-				serialNumber = (String) build.getClass().getField("SERIAL").get(build);
-			} catch (Exception e) {
-				Log.w(TAG, "couldn't get serial number (exception thrown, stack trace follows)");
+		        Class<?> c = Class.forName("android.os.SystemProperties");
+		        Method get = c.getMethod("get", String.class);
+		        serialNumber = (String) get.invoke(c, "ro.serialno");
+		    } catch (Exception e) {
 				e.printStackTrace();
-				return null;
-			}
+		    }
 			Log.i(TAG, "got serial number " + serialNumber);
 			return serialNumber;
 		}
