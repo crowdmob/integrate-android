@@ -109,10 +109,9 @@ class UniqueDeviceId {
 
 		String aAndroidId() {
 			Log.i(TAG, "trying to get Android ID");
-			Secure secureSettings = new Settings.Secure();
 			String androidId = null;
 			try {
-				androidId = (String) secureSettings.getClass().getField("ANDROID_ID").get(secureSettings);
+				androidId = Secure.getString(context.getContentResolver(), Secure.ANDROID_ID);
 			} catch (Exception e) {
 				Log.w(TAG, "couldn't get Android ID (exception thrown, stack trace follows)");
 				e.printStackTrace();
