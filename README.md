@@ -1,2 +1,0 @@
-mobdeals-android-sdk
-====================
