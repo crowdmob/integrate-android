@@ -1,10 +1,10 @@
-h1. MobDeals &mdash; Android App Installs Tracking
+h1. MobDeals &mdash; Android Integration and App Installs Tracking
 
 MobDeals (http://deals.crowdmob.com/) offers functionality to track the number
 of unique installs of your Android app.  You can enable this functionality for
 your own app by following these integration instructions.
 
-h2. Integration Instructions
+h2. App Installs Tracking
 
 # Download the file @RegisterWithCrowdMob.java@.  (https://raw.github.com/crowdmob/installs-android/master/src/com/crowdmob/installs/RegisterWithCrowdMob.java)
 # Copy the file @RegisterWithCrowdMob.java@ into the same directory containing your main Android app activity.  (Usually something like: @YourApp/src/com/yourcompany/yourapp@)
@@ -22,7 +22,7 @@ h2. Integration Instructions
 @@ Confirm your work against this example @AndroidManifest.xml@ file: https://github.com/crowdmob/installs-android/blob/master/AndroidManifest.xml
 # Congratulations!  You&rsquo;ve integrated your Android app with MobDeals to track installs.
 
-h2. Testing Integration
+h3. Testing App Installs Tracking
 
 # Launch your app in your Android emulator, and examine the logs using LogCat.
 # Look for the following three log entries:
@@ -36,3 +36,202 @@ h2. Testing Integration
 ## @1004@ - Installation succeeded, verified, and recorded within Loot.
 ## @1005@ - Installation previously succeeded, verified, and recorded within Loot.
 ## @1006@ - Installation could not be confirmed.
+
+
+
+h2. Deals Integration
+
+MobDeals enables your application to serve up local deals to your users, optionally in return for virtual currency.  We provide an in-app checkout experience for the user, so they don't have to leave your application in order to monetize. 
+
+
+h3. Overview
+
+There are a few simple steps on the developer's part required to show a deal.
+
+# Sign up for a developer API key and secret token on our sandbox server: "http://www.mobstaging.com/publisher/signup":http://www.mobstaging.com/publisher/signup 
+# Retrieve the most relevant deal(s) for your user by making an API call to our server: @HOST/offerwall@ requesting a deal
+# Display this deal to your users where you think it will be viewed and tapped by your users.
+# When the user taps it, popup a modal dialog with a @WebView@, and point it to the URL of the deal.   That's it!
+# Listen for the credit callback to Android from the WebView
+# Alternatively, you can popup an offerwall by popping up a @WebView@, and point it to the URL of our offerwall
+# Test a few purchases out on staging, and then you can get production credentials on our production server: "https://deals.crowdmob.com/publisher/signup":https://deals.crowdmob.com/publisher/signup
+
+
+h3. Sign Up on Staging
+
+Go to "http://www.mobstaging.com/publisher/signup":http://www.mobstaging.com/publisher/signup and sign up your development business.  
+
+You can find your API and Secret Key after creating the app, and clicking into the details.  The page looks something like this:
+!http://mobdeal-docs.s3.amazonaws.com/app-details-screen.png!
+
+You'll be able to use these credentials when you run the sample app -- just paste them in!
+
+
+h3. Retrieve Most Relevant Deal(s)
+
+All of the logic for the sample code is located in @AndroidMobDealsSampleAppActivity.java@.  Specifically, take a look in the @RequestOfferTask@ AsyncTask.  It makes a request to @HOST[sandbox-or-production]/offerwall?api_access_key=API_KEY&count=1@, and then parses them using JSON.
+
+If you have retrieved GPS coordinates, you should send those in as well so we can further target the deal.  This is simply a change to the URL that's called, which is @HOST[sandbox-or-production]/offerwall?api_access_key=API_KEY&count=1&location=LAT,LON@.  The sample code uses @LocationManager@ to request the location from the user using the built-in Android capabilities, and saves them in @currentLocation@  which the @RequestOfferTask@ later uses.
+
+
+h3. Display the Deal(s) to Your Users
+
+We recommend that you display the deal in as integrated a way possible into your application.  The sample application simply puts them into plain labels, but you can embed them into an existing shopping page, an offerwall, or make a custom banner. You can see how this sample application parses out the JSON returned by our server by at the method @renderOffer@, which is called by @*RequestOfferTask@ once it gets the response from the server.
+
+The structure of the JSON returned looks like this:
+
+<pre>
+	{
+	  "help_address": "www.crowdmob.com/deals",
+	  "next_page": "http://deals.crowdmob.com/offerwall?count=1&location=37.7822537%2C-122.4042642&page=1&categories=popular%2Cnew%2Cnearby&api_access_key=APIKEY",
+	  "coin_bonus_cc_pay": 0,
+	  "help_number": "1-800-2939988",
+	  "coin_img": "http://prodvenvv4mximgp239xqtpm3.s3.amazonaws.com/img_Application_c81e728d9d4c2f636f067f89cc14862c__currency_img_url",
+	  "authentication": true,
+	  "offers":{
+	    "9":{
+	      "max_per_user": null,
+	      "closest_location": {
+	        "city": "San Francisco",
+	        "name": "2076 Hayes St",
+	        "store_number": "1",
+	        "country": "USA",
+	        "region": "",
+	        "longitude": -122.419,
+	        "state": "CA",
+	        "latitude": 37.7749,
+	        "id": 19,
+	        "street_address": "2076 Hayes St"
+	      },
+	      "provider_id": 42,
+	      "expires": "12/22/2011",
+	      "num_locs": 1,
+	      "title": "$16 for $35 of Spa Services at Sapphire Nails & Tanning Salon",
+	      "highlights": "<ul></ul>",
+	      "cost_per": "16.00",
+	      "value": "35.00",
+	      "discount": 55,
+	      "fine_print": "<ul><li>1 max purchase(s) per customer.</li><li>Max redemption of up to 1 per visit.</li><li>Limit 1 per person\r\nBy appointment only, please call (415) 386-2793\r\nNot to be combined with other off</li></ul>",
+	      "inventory": 99999,
+	      "provider":{
+	        "output_method": 0,
+	        "description": "",
+	        "name": "Sapphire Nails & Tanning Salon",
+	        "loyalty_reward": "10.00",
+	        "loyalty-enabled": true,
+	        "loyalty_goal": "75.00",
+	        "loyalty_payout": 50,
+	        "is_chain": false,
+	        "img_url": "http://prodvenvv4mximgp239xqtpm3.s3.amazonaws.com/img_Provider_a1d0c6e83f027327d8461063f4ac58a6__img_url",
+	        "id": 42,
+	        "loyalty_percent": 10
+	      },
+	      "source_id": null,
+	      "coins": 0,
+	      "is_fixed": false,
+	      "img_url": "http://prodvenvv4mximgp239xqtpm3.s3.amazonaws.com/img_Offer_45c48cce2e2d7fbdea1afc51c7c6ad26__img_url",
+	      "id": 9
+	    }
+	  },
+	  "banners":{
+	    "Sapphire Nails & Tanning Salon":[ ]
+	  },
+	  "categories":{
+	    "popular":{
+	      "offer_ids": [ 9 ]
+	    },
+	    "new":{
+	      "offer_ids": [ 9 ]
+	    },
+	    "nearby":{
+	      "offer_ids": [ 9 ]
+	    }
+	  }
+	}
+</pre>
+
+
+If there is an error, the output will have a structure similar to the following:
+
+<pre>
+	{
+	  "error_data":{
+	    // More JSON data depending on the error.
+	  },
+	  "error_code": 2,
+	  "error_message": "Something unexpected occurred.  Please try again another time."
+	}
+</pre>
+
+
+
+h3. On-Click, Display the Offer Purchase HTML5 in a modal @WebView@
+
+Our modal view is designed within @webviewdialog.xml@ and implemented in the method @showWebview@.  It has a close button, and overlays a WebView. The format of the URL is @HOST/m/offers/OFFER_ID?api_access_key=API_KEY@
+
+The MobDeals purchase flow flexes its width according to the width of the WebView, but has been perfected for a width that is nearly the same as is shown in @webviewdialog.xml@
+
+
+
+h3. Popping up an Offerwall of Deals Instead
+
+Displaying a full offerwall is the fastest and easiest alternative to getting offers in your application.  In this implementation, we display a list of all the deals to the users, without any need for the developer to parse any JSON.
+
+You can see the example of this in the @offerwallButton@ on-click listener.  It simply populates the modal @WebView@ with the url that looks like: @HOST/m/offerwall?api_access_key=API_KEY@
+
+If you've already retrieved GPS location coordinates, you can popup the url with the lat/lon in the URL, like:
+@HOST/m/offerwall?api_access_key=API_KEY&location=LAT,LON@
+
+h4. Sandbox Credit Cards
+
+You can use any of these credit cards to create a successful transaction on staging.  Any expiration date in the future will work with them, and for CVV you can use @123@
+
+*Visa*
+4111111111111111
+4005519200000004
+4009348888881881
+4012000033330026
+4012000077777777
+4012888888881881
+4217651111111119
+4500600000000061
+
+*MasterCard*
+5555555555554444
+
+*American Express*
+378282246310005
+371449635398431
+
+*Discover*
+6011111111111117
+
+*JCB*
+3530111333300000
+
+h3. Credit Users for Successful Purchases
+
+If you look at @MobDealsJavaScriptInterface@ along with @handlePurchaseConfirmation@, you'll find the sample code that's required to credit the user.  
+
+Upon a successful purchase, the HTML5 version of mobdeals calls a javascript method called @window.mobdeals_native.purchaseConfirmed(...)@.  This contains the JSON that describes the transaction, as well as a signature to prevent hacking, and you can see in this sample code how to extract the number of coins.
+
+h3. Sign up for Production
+
+Go to "https://deals.crowdmob.com/publisher/signup":https://deals.crowdmob.com/publisher/signup and sign up your development business.  
+
+You can find your API and Secret Key after creating the app, and clicking into the details.  The process will be identical to sandbox, so again, the page looks something like this:
+!http://mobdeal-docs.s3.amazonaws.com/app-details-screen.png!
+
+Swap these production credentials in, and you're set!
+
+
+
+
+h3. Additional Notes about the Sample Code
+
+Please make sure your app's manifest requests the following permissions:
+
+<pre>
+&lt;uses-permission android:name="android.permission.INTERNET" /&gt;
+&lt;uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" /&gt;
+</pre>
