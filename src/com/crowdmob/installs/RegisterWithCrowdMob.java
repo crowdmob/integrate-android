@@ -88,7 +88,7 @@ class FirstRun {
 
 // This class only contains static methods.  So we don't incur any penalty for
 // instantiating a new object.  It's just a way to organize all of the methods
-// to do with determining if an app has been run before.
+// to do with computing a unique Android device ID.
 class UniqueDeviceId {
 	private static final String TAG = "UniqueDeviceId";
 
