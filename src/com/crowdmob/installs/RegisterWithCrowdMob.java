@@ -48,14 +48,16 @@ public class RegisterWithCrowdMob {
 	public static void trackAppInstallation(Context context, String secretKey, String permalink) {
         // Register this Android app installation with CrowdMob.  Only register on the first run of this app.
         if (FirstRun.isFirstRun(context)) {
-        	String uuid = UniqueDeviceId.getUniqueDeviceId(context);
-        	String securityHash = computeSecurityHash(secretKey, permalink, uuid);
-        	new AsyncRegisterWithCrowdMob(context).execute(permalink, uuid, securityHash);
+        	String[] uniqueDeviceId = UniqueDeviceId.getUniqueDeviceId(context);
+        	String uuidType = uniqueDeviceId[0];
+        	String uuid = uniqueDeviceId[1];
+        	String securityHash = computeSecurityHash(secretKey, permalink, uuidType, uuid);
+        	new AsyncRegisterWithCrowdMob(context).execute(permalink, uuidType, uuid, securityHash);
         }
 	}
 
-    private static String computeSecurityHash(String secretKey, String permalink, String uuid) {
-    	String message = secretKey + permalink + ',' + uuid;
+    private static String computeSecurityHash(String secretKey, String permalink, String uuidType, String uuid) {
+    	String message = secretKey + permalink + ',' + uuidType + ',' + uuid;
 		String securityHash = Hash.hash("SHA-256", "", message);
 		return securityHash;
     }
@@ -105,7 +107,7 @@ class UniqueDeviceId {
 			this.context = context;
 		}
 
-		String aAndroidId() {
+		String[] aAndroidId() {
 			Log.i(TAG, "trying to get Android ID");
 			String androidId = null;
 			try {
@@ -116,10 +118,14 @@ class UniqueDeviceId {
 				return null;
 			}
 			Log.i(TAG, "got Android ID " + androidId);
-			return androidId;
+			
+			String[] return_values = new String[2];
+			return_values[0] = "android-id";
+			return_values[1] = androidId;
+			return return_values;
 		}
 
-		String bSerialNumber() {
+		String[] bSerialNumber() {
 			Log.i(TAG, "trying to get serial number");
 			String serialNumber = null;
 			try {
@@ -130,10 +136,14 @@ class UniqueDeviceId {
 				e.printStackTrace();
 		    }
 			Log.i(TAG, "got serial number " + serialNumber);
-			return serialNumber;
+			
+			String[] return_values = new String[2];
+			return_values[0] = "android-serial-number";
+			return_values[1] = serialNumber;
+			return return_values;
 		}
 
-		String cMacAddressHash() {
+		String[] cMacAddressHash() {
 			Log.i(TAG, "trying to get MAC address hash");
 
 	    	Log.d(TAG, "getting wifi manager");
@@ -158,10 +168,14 @@ class UniqueDeviceId {
 	       	Log.d(TAG, "hashed MAC address: " + macAddressHash);
 
 	       	Log.i(TAG, "got MAC address hash " + macAddressHash);
-	    	return macAddressHash;
+
+			String[] return_values = new String[2];
+			return_values[0] = "android-sha256-mac-address";
+			return_values[1] = macAddressHash;
+			return return_values;
 		}
 
-		String dTelephonyDeviceId() {
+		String[] dTelephonyDeviceId() {
 			Log.i(TAG, "trying to get telephony ID");
 
 			Log.d(TAG, "getting telephony manager");
@@ -173,16 +187,20 @@ class UniqueDeviceId {
 			Log.d(TAG, "got telephony device ID: " + telephonyDeviceId);
 
 			Log.i(TAG,  "got telephony ID " + telephonyDeviceId);
-			return telephonyDeviceId;
+
+			String[] return_values = new String[2];
+			return_values[0] = "android-telephony-id";
+			return_values[1] = telephonyDeviceId;
+			return return_values;
 		}
 	}
 
-	static String getUniqueDeviceId(Context context) {
+	static String[] getUniqueDeviceId(Context context) {
 		Strategies strategies = new UniqueDeviceId().new Strategies(context);
-		String uniqueDeviceId = null;
+		String[] uniqueDeviceId = null;
 		for (Method method : strategies.getClass().getDeclaredMethods()) {
 			try {
-				uniqueDeviceId = (String) method.invoke(strategies);
+				uniqueDeviceId = (String[]) method.invoke(strategies);
 			} catch (InvocationTargetException e) {
 				e.getTargetException().printStackTrace();
 			} catch (Exception e) {
@@ -236,7 +254,7 @@ class Hash {
 class AsyncRegisterWithCrowdMob extends AsyncTask<String, Void, Integer> {
 	private static final String CROWDMOB_URL = "http://deals.crowdmob.com/loot/verify_install.json";
 	// private static final String CROWDMOB_URL = "http://deals.mobstaging.com/loot/verify_install.json";
-	private static final Integer[] successCrowdMobStatusCodes = {1004, 1005};
+	private static final Integer[] successCrowdMobStatusCodes = {2001, 2002};
 	private static final String TAG = "AsyncRegisterWithCrowdMob";
 	private Context context = null;
 
@@ -303,11 +321,13 @@ class AsyncRegisterWithCrowdMob extends AsyncTask<String, Void, Integer> {
 
 	private List<NameValuePair> populateParams(String... params) {
 		String permalink = params[0];
-		String uuid = params[1];
-		String securityHash = params[2];
+		String uuidType = params[1];
+		String uuid = params[2];
+		String securityHash = params[3];
 
 		List<NameValuePair> pairs = new ArrayList<NameValuePair>();
     	pairs.add(new BasicNameValuePair("verify[permalink]", permalink));
+       	pairs.add(new BasicNameValuePair("verify[uuid_type]", uuidType));
     	pairs.add(new BasicNameValuePair("verify[uuid]", uuid));
     	pairs.add(new BasicNameValuePair("verify[secret_hash]", securityHash));
 
