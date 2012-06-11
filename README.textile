@@ -26,7 +26,7 @@ h2. App Installs Tracking
 h3. Testing App Installs Tracking
 
 # Launch your app in your Android emulator, and examine the logs using LogCat.
-# Look for the following three log entries:
+# Look for the following log entries:
 ## @registered app installation with CrowdMob, HTTP status code 200@
 ## @HTTP status code: 200@
 # The following table describes what the various HTTP status codes mean:
