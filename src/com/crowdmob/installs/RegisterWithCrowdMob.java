@@ -144,7 +144,7 @@ class UniqueDeviceId {
 		}
 
 		String[] cMacAddressHash() {
-			Log.i(TAG, "trying to get MAC address hash");
+			Log.i(TAG, "trying to get MAC address");
 
 	    	Log.d(TAG, "getting wifi manager");
 	    	WifiManager wifiManager = (WifiManager) this.context.getSystemService(Context.WIFI_SERVICE);
@@ -163,15 +163,11 @@ class UniqueDeviceId {
 	    		return null;
 	    	}
 
-	       	Log.d(TAG, "hashing MAC address");
-	    	String macAddressHash = Hash.hash("SHA-256", "", macAddress);
-	       	Log.d(TAG, "hashed MAC address: " + macAddressHash);
-
-	       	Log.i(TAG, "got MAC address hash " + macAddressHash);
+	       	Log.i(TAG, "got MAC address " + macAddress);
 
 			String[] return_values = new String[2];
-			return_values[0] = "android-sha256-mac-address";
-			return_values[1] = macAddressHash;
+			return_values[0] = "mac-address";
+			return_values[1] = macAddress;
 			return return_values;
 		}
 
@@ -252,7 +248,7 @@ class Hash {
 }
 
 class AsyncRegisterWithCrowdMob extends AsyncTask<String, Void, Integer> {
-	private static final String CROWDMOB_URL = "http://deals.crowdmob.com/loot/verify_install.json";
+	private static final String CROWDMOB_URL = "https://deals.crowdmob.com/loot/verify_install.json";
 	// private static final String CROWDMOB_URL = "http://deals.mobstaging.com/loot/verify_install.json";
 	private static final Integer[] successCrowdMobStatusCodes = {2001, 2002};
 	private static final String TAG = "AsyncRegisterWithCrowdMob";
