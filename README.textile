@@ -29,14 +29,10 @@ h3. Testing App Installs Tracking
 # Look for the following three log entries:
 ## @registered app installation with CrowdMob, HTTP status code 200@
 ## @HTTP status code: 200@
-## @CrowdMob status code: 1004@
-# In particular, the CrowdMob status code should be @1004@ or @1005@.  This is what the status codes mean:
-## @1001@ - App (permalink) doesn't exist within Loot.
-## @1002@ - Securty hash could not be verified.
-## @1003@ - Device (UUID) has not been registered (so install can't be verified).
-## @1004@ - Installation succeeded, verified, and recorded within Loot.
-## @1005@ - Installation previously succeeded, verified, and recorded within Loot.
-## @1006@ - Installation could not be confirmed.
+# The following table describes what the various HTTP status codes mean:
+## @200@ - App install registration succeeded.
+## @403@ - Securty hash could not be verified.
+## @404@ - App (permalink) doesn't exist within Loot.
 
 
 
