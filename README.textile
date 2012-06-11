@@ -20,7 +20,7 @@ h2. App Installs Tracking
 ### @<uses-permission android:name="android.permission.INTERNET" />@
 ### @<uses-permission android:name="android.permission.READ_PHONE_STATE" />@
 ### @<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />@
-@@ Confirm your work against this example @AndroidManifest.xml@ file: https://github.com/crowdmob/installs-android/blob/master/AndroidManifest.xml
+## Confirm your work against this example @AndroidManifest.xml@ file: https://github.com/crowdmob/installs-android/blob/master/AndroidManifest.xml
 # Congratulations!  You&rsquo;ve integrated your Android app with MobDeals to track installs.
 
 h3. Testing App Installs Tracking
