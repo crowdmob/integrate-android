@@ -312,7 +312,7 @@ class AsyncRegisterWithCrowdMob extends AsyncTask<String, Void, Integer> {
 		Log.i(TAG, "handling CrowdMob installation registration status code " + crowdMobStatusCode);
 		if (Arrays.asList(successCrowdMobStatusCodes).contains(crowdMobStatusCode)) {
 			Log.d(TAG, "CrowdMob status code indicates success; registering successful first run");
-			FirstRun.completedFirstRun(context);
+			// FirstRun.completedFirstRun(context);
 		} else {
 			Log.d(TAG, "CrowdMob status code indicates failure; not registering successful first run");
 		}
