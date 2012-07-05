@@ -229,6 +229,6 @@ h3. Additional Notes about the Sample Code
 Please make sure your app's manifest requests the following permissions:
 
 <pre>
-&lt;uses-permission android:name="android.permission.INTERNET" /&gt;
-&lt;uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" /&gt;
+<uses-permission android:name="android.permission.INTERNET" />
+<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 </pre>

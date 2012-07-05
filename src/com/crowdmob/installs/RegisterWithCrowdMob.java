@@ -118,9 +118,9 @@ class UniqueDeviceId {
 				return null;
 			}
 			Log.i(TAG, "got Android ID " + androidId);
-			
+
 			String[] return_values = new String[2];
-			return_values[0] = "android-id";
+			return_values[0] = "android_id";
 			return_values[1] = androidId;
 			return return_values;
 		}
@@ -138,7 +138,7 @@ class UniqueDeviceId {
 			Log.i(TAG, "got serial number " + serialNumber);
 			
 			String[] return_values = new String[2];
-			return_values[0] = "android-serial-number";
+			return_values[0] = "android_serial_number";
 			return_values[1] = serialNumber;
 			return return_values;
 		}
@@ -166,7 +166,7 @@ class UniqueDeviceId {
 	       	Log.i(TAG, "got MAC address " + macAddress);
 
 			String[] return_values = new String[2];
-			return_values[0] = "mac-address";
+			return_values[0] = "mac_address";
 			return_values[1] = macAddress;
 			return return_values;
 		}
@@ -185,7 +185,7 @@ class UniqueDeviceId {
 			Log.i(TAG,  "got telephony ID " + telephonyDeviceId);
 
 			String[] return_values = new String[2];
-			return_values[0] = "android-telephony-id";
+			return_values[0] = "android_telephony_id";
 			return_values[1] = telephonyDeviceId;
 			return return_values;
 		}
@@ -248,8 +248,8 @@ class Hash {
 }
 
 class AsyncRegisterWithCrowdMob extends AsyncTask<String, Void, Integer> {
-	// private static final String CROWDMOB_URL = "http://deals.crowdmob.com/loot/verify_install.json";
-	private static final String CROWDMOB_URL = "http://deals.mobstaging.com/loot/verify_install.json";
+	private static final String CROWDMOB_URL = "http://deals.crowdmob.com/loot/verify_install.json";
+	// private static final String CROWDMOB_URL = "http://deals.mobstaging.com/loot/verify_install.json";
 	private static final Integer[] successCrowdMobStatusCodes = {2001, 2002};
 	private static final String TAG = "AsyncRegisterWithCrowdMob";
 
