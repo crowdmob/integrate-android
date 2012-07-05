@@ -7,7 +7,7 @@
  |          Raj Shah <raj@crowdmob.com>                                      |
 \*---------------------------------------------------------------------------*/
 
-package com.crowdmob.installs;
+package com.crowdmob.integrate;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -24,6 +24,8 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import com.crowdmob.installs.R;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -49,7 +51,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
-public class InstallsAndroidActivity extends Activity {
+public class IntegrateAndroidActivity extends Activity {
 	private static final String SECRET_KEY = "d2ef7da8a45891f2fee33747788903e7";
 	private static final String PERMALINK = "the-impossible-game";
 
@@ -246,7 +248,7 @@ public class InstallsAndroidActivity extends Activity {
             	HttpEntity entity = response.getEntity();
             	if (entity != null) {
             		InputStream instream = entity.getContent();
-            		String result = InstallsAndroidActivity._convertStreamToString(instream);
+            		String result = IntegrateAndroidActivity._convertStreamToString(instream);
             		instream.close();
             		
             		return new JSONObject(result);

@@ -7,7 +7,7 @@
  |          Raj Shah <raj@crowdmob.com>                                      |
 \*---------------------------------------------------------------------------*/
 
-package com.crowdmob.installs;
+package com.crowdmob.integrate;
 
 import java.io.BufferedReader;
 import java.io.IOException;
