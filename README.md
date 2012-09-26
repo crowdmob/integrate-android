@@ -17,7 +17,7 @@ Integration Instructions
   1. Add a class-level constant for your app's secret key.  (Like: `private static final String SECRET_KEY = "d2ef7da8a45891f2fee33747788903e7";`)
   2. Add a class-level constant for your app's permalink.  (Like: `private static final String PERMALINK = "your-app";`)
   3. At the very bottom of your `onCreate()` method, call the code to register your app's install with CrowdMob: `RegisterWithCrowdMob.trackAppInstallation(this, SECRET_KEY, PERMALINK);`
-  4. Confirm your work against this [example main activity class](https://github.com/crowdmob/integrate-android/blob/master/src/com/crowdmob/installs/InstallsAndroidActivity.java).
+  4. Confirm your work against this [example main activity class](https://github.com/crowdmob/integrate-android/blob/master/src/com/crowdmob/integrate/IntegrateAndroidActivity.java).
 5. Edit your `AndroidManifest.xml` file:
   1. At the very bottom, within the `<manifest>` tag, add the following lines:
     1. `<uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />`
