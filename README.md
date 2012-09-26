@@ -25,3 +25,5 @@ Integration Instructions
     3. `<uses-permission android:name="android.permission.READ_PHONE_STATE" />`
     4. `<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />`
   2. Confirm your work against this [example `AndroidManifest.xml` file](https://github.com/crowdmob/installs-android/blob/master/AndroidManifest.xml).
+
+Congratulations!  You've integrated your Android app with CrowdMob to track installs.
