@@ -24,4 +24,4 @@ Integration Instructions
     2. `<uses-permission android:name="android.permission.INTERNET" />`
     3. `<uses-permission android:name="android.permission.READ_PHONE_STATE" />`
     4. `<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />`
-  2. Confirm your work against this [example `AndroidManifest.xml` file](https://github.com/crowdmob/installs-android/blob/master/AndroidManifest.xml)
+  2. Confirm your work against this [example `AndroidManifest.xml` file](https://github.com/crowdmob/installs-android/blob/master/AndroidManifest.xml).
