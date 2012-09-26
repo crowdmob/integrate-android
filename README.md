@@ -37,3 +37,10 @@ Now that you've integrated with CrowdMob to track installs, confirm that everyth
 
 1. Launch your app in your Android emulator, and examine the logs using LogCat.
 2. Look for the following log entry: `registered app installation with CrowdMob, HTTP status code 200`
+
+The following table describes what the various HTTP status codes mean:
+
+* `400`:  At least one parameter was not supplied.
+* `403`:  Your security hash doesn’t match the expected value.
+* `404`:  Your specified app permalink doesn’t correspond to an app registered with CrowdMob.
+* `200`:  Your request was well formed and was properly processed by CrowdMob’s server.
